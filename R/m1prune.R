@@ -1,7 +1,6 @@
 library(arules)
 # TODO:  parallellization: http://stackoverflow.com/questions/24206874/how-to-parallelise-an-algorithm-that-includes-a-sparse-matrix-in-r
-prunerules <- function  (rules, txns, classitems,RULEWINDOW=100){
-  default_rule_pruning=TRUE
+prunerules <- function  (rules, txns, classitems,RULEWINDOW=100,default_rule_pruning=TRUE){
   debug=FALSE
   
   #compute rule length
@@ -143,10 +142,12 @@ prunerules <- function  (rules, txns, classitems,RULEWINDOW=100){
   # perform default rule pruning
   if (default_rule_pruning)
   {
+    print("Performing default rule pruning.")
     #find "last rule" the first rule with the smallest number of errors
     last_rule_pos <- which.min(total_errors)
     #keep only the top rules until "last rule"(inclusive)
     rules <- rules[1:last_rule_pos]
+    
   }
   else{
     #in case there is no default rule pruning, the "last rule" is actually the last rule among those surviving data coverage pruning
@@ -170,7 +171,7 @@ prunerules <- function  (rules, txns, classitems,RULEWINDOW=100){
   #so that it does not clash with any of the row names of the original rule set
   row.names(rules@quality)[nrow(rules@quality)]<-0
   
-  print(paste("Rules after default rule pruning: ",length(rules)))
+  print(paste("Final rule set size: ",length(rules)))
   return(rules)
 }
 

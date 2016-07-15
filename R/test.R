@@ -39,7 +39,7 @@ getclassitems <- function(train,classatt){
 
 #learnprune_csv("/home/tomas/Dropbox/Projekty/MARC/experiments/dev/train/car5.csv",,,,"/home/big/car5.csv")
 #learnprune_csv("/home/tomas/Dropbox/Projekty/MARC/experiments/dev/train",,,,"/home/big/heart-h6.csv.arules")
-learnprune_csv<- function(path,classatt=NULL,idcolumn=NULL,target_rule_count=50000,outpath=NULL)
+learnprune_csv<- function(path,classatt=NULL,idcolumn=NULL,target_rule_count=50000,pruning_type="CBA",outpath=NULL)
 {
   train<-read.csv(path,header=TRUE, check.names=FALSE)
   if (!is.null(idcolumn))
@@ -51,7 +51,7 @@ learnprune_csv<- function(path,classatt=NULL,idcolumn=NULL,target_rule_count=500
   {
     classatt<-colnames(train)[ncol(train)]
   }
-  rules<-example_learnprune(train,classatt,target_rule_count)
+  rules<-example_learnprune(train,classatt,target_rule_count,pruning_type)
   if (!is.null(outpath))
   {
     write.csv(as(rules,"data.frame"), outpath, row.names=TRUE,quote = TRUE)
@@ -61,11 +61,11 @@ learnprune_csv<- function(path,classatt=NULL,idcolumn=NULL,target_rule_count=500
 learnprune_iris<- function(auto=TRUE)
 {
   data(iris)
-  return(example_learnprune(iris,"Species",auto))
+  return(example_learnprune(iris,"Species",1000,"CBA"))
   
 }
 
-example_learnprune <- function(train,classatt,target_rule_count){
+example_learnprune <- function(train,classatt,target_rule_count,pruning_type){
   train<-discr_if_needed(train,classatt)
   
   txns<-as(train,"transactions")
@@ -84,7 +84,16 @@ example_learnprune <- function(train,classatt,target_rule_count){
   print (time.taken <- end.time - start.time)
   
   start.time <- Sys.time()
-  rules <-prunerules(rules, txns,classitems)
+  default_rule_pruning<-FALSE
+  if (pruning_type=="CBA_NO_DEFAULT")
+  {
+    default_rule_pruning<-FALSE
+  }
+  else
+  {
+    default_rule_pruning<-TRUE
+  }
+  rules <-prunerules(rules, txns,classitems,100,default_rule_pruning)
   end.time <- Sys.time()
   print (time.taken <- end.time - start.time)
   return(rules)
