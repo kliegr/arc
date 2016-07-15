@@ -1,15 +1,40 @@
 library(arules)
-#if(exists("prune", mode = "function"))
-#  source("m1prune.R")
-
-#if(exists("nclassrules", mode = "function"))
-#  source("cbam1_auto.R")
 
 
-#train <- read.csv("/home/tomas/Dropbox/Projekty/MARC/experiments/dev/train/heart-h6.csv",header=TRUE, check.names=FALSE, sep = ",") # load csv +
-#path<-"/home/tomas/Dropbox/Projekty/MARC/experiments/dev/train/heart-h6.csv"
-#classitems=c("class=+", "class=-")
 
+
+RuleModel <- setClass("RuleModel",
+  slots = c(
+    rules = "rules",
+    cutp = "list"
+  )
+)
+
+setGeneric("rulematch", function(rm,test) {
+  standardGeneric("rulematch")
+})
+
+setMethod("rulematch", signature(rm = "RuleModel", test = "data.frame"), function(rm,test) {
+  # implement a method taking on input also data frame with test data
+  # apply rm@cutp on test data using "cut"
+  # then create a one dimensional matrix, considering only the subset of items in rules@lhs@itemInfo (! which contains also class items ! )
+  # multiply the one dimensional vector with each rule i, check if length matches rules[i]@quality$length
+  ## multiply 
+  ## 
+  #get logical matrix showing which rules (rows) match which transactions (columns)
+  
+  #apply rm@cutp on train
+  test<-apply_cuts(rm@cutp,test)
+  txns <- as(test, "transactions")
+  t<-is.subset(rules@lhs,txns)
+  #get row index of first rule matching each transaction
+  matches<-apply(t, 2, function(x) min(which(t[,x]==TRUE)))
+  # for each elemenent in the matches vector (i.e. index of first matching rule) 
+  # get the index of the item on the right hand side of this rule which is true
+  # and lookup the name of this item in iteminfo by this index
+  result<-lapply(matches, function(match) rules@rhs@itemInfo[which(rules@rhs[match]@data==TRUE),1] )
+  return(result)
+})
 
 discr_if_needed <- function(train,classatt)
 {
@@ -26,8 +51,9 @@ discr_if_needed <- function(train,classatt)
       train[[classatt_col]] <- factor(train[[classatt_col]])
     }
   }
+  discr<-mdlp2(train,skip_nonnumeric=TRUE,labels=TRUE,handle_missing=TRUE,class=classatt_col,infinite_bounds=TRUE)
   
-  return (mdlp2(train,skip_nonnumeric=TRUE,labels=TRUE,handle_missing=TRUE,class=classatt_col,infinite_bounds=TRUE)$Disc.data)
+  return (discr)
   
 }
 
@@ -39,6 +65,7 @@ getclassitems <- function(train,classatt){
 
 #learnprune_csv("/home/tomas/Dropbox/Projekty/MARC/experiments/dev/train/car5.csv",,,,"/home/big/car5.csv")
 #learnprune_csv("/home/tomas/Dropbox/Projekty/MARC/experiments/dev/train",,,,"/home/big/heart-h6.csv.arules")
+#path="/home/tomas/Dropbox/Projekty/MARC/experiments/dev/train/credit-a6.csv"
 learnprune_csv<- function(path,classatt=NULL,idcolumn=NULL,target_rule_count=50000,pruning_type="CBA",outpath=NULL)
 {
   train<-read.csv(path,header=TRUE, check.names=FALSE)
@@ -66,9 +93,9 @@ learnprune_iris<- function(auto=TRUE)
 }
 
 example_learnprune <- function(train,classatt,target_rule_count,pruning_type){
-  train<-discr_if_needed(train,classatt)
+  discr<-discr_if_needed(train,classatt)
   
-  txns<-as(train,"transactions")
+  txns<-as(discr$Disc.data,"transactions")
   classitems<-getclassitems(train,classatt)
   
   start.time <- Sys.time()
@@ -96,5 +123,10 @@ example_learnprune <- function(train,classatt,target_rule_count,pruning_type){
   rules <-prunerules(rules, txns,classitems,100,default_rule_pruning)
   end.time <- Sys.time()
   print (time.taken <- end.time - start.time)
-  return(rules)
+  
+  #bundle cutpoints with rule set into one object
+  rm <- RuleModel()
+  rm@rules<-rules
+  rm@cutp <-discr$cutp
+  return(rm)
 }

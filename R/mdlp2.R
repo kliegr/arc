@@ -1,6 +1,34 @@
 library(discretization)
 # heavily modified version of function mdlp from the discretize package:
 # handles missing values,allows to output data with labels, allows to automatically skip numeric columns, class does not need to be the last attribute
+
+apply_cuts <-function(cutp,data)
+{
+  xd <- data
+  print(cutp)
+  for (i in 1:length(cutp)){
+    print(paste("processing variable",i))
+    if (cutp[i]=="NULL")
+    {
+      #NULL string indicates do not perform any discretization
+      next
+    }
+    else if (cutp[i]=="All")
+    {
+      #String "All" indicates that all values should be covered by one interval
+      cuts <- c(-Inf,+Inf)
+    }
+    else{
+      cuts <- c(-Inf,cutp[i],+Inf)
+    }
+      print(cuts)
+      #make sure this line is exacty same as in mdlp2
+      #TODO refactor mdlp2 to use this method to perform modification of the input dataframe in case labels parameter is set  to true
+      xd[,i] <- cut.semicolon(data[[i]],unlist(cuts),dig.lab=12,include.lowest = TRUE)
+    }
+  
+  return (xd)
+}
 mdlp2 <-  function(data,handle_missing=FALSE,labels=FALSE,skip_nonnumeric=FALSE,class=NULL, infinite_bounds=FALSE){
   if (is.null(class))
   {
@@ -18,6 +46,7 @@ mdlp2 <-  function(data,handle_missing=FALSE,labels=FALSE,skip_nonnumeric=FALSE,
     if (i==class) next
     if (!is.numeric(data[[i]]) & skip_nonnumeric)
     {
+      #this means that the output $discr "slot" will have on the "i" position string "NULL"
       next
     }
     
@@ -54,7 +83,7 @@ mdlp2 <-  function(data,handle_missing=FALSE,labels=FALSE,skip_nonnumeric=FALSE,
     {
       cuts <- c(min(x),cuts1,max(x))
     }
-      
+
     cutp[[i]] <- cuts1
     if(length(cutp[[i]])==0) cutp[[i]] <- "All"
     if (labels)
@@ -66,6 +95,8 @@ mdlp2 <-  function(data,handle_missing=FALSE,labels=FALSE,skip_nonnumeric=FALSE,
       #the reason is that in the arules format colon would be overloaded: it is also used to separate items in a rule
       #dig.lab=12 ensures that cut should not perform  rounding of interval boundaries (unless there is more than 12 digits, which is maximum in cut)
       #if rounding is in place it can cause the interval not to match any instance
+      
+      #make sure this line is exacty same as in apply_cuts
       xd[,i] <- cut.semicolon(data[[i]],cuts,dig.lab=12,include.lowest = TRUE)
     }
     else
@@ -127,5 +158,3 @@ cut.semicolon <-
     if(codes.only) code
     else factor(code, seq_along(labels), labels, ordered = ordered_result)
   }
-
-#mdlp2(iris[c(5,2,3)],skip_nonnumeric=TRUE,labels=TRUE,handle_missing=TRUE,class=1)
