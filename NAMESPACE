@@ -1,0 +1,14 @@
+export(
+    "example_learnprune",
+    "learnprune_csv",
+    "learnprune_iris",
+    "prunerules",
+    "firstkrules",
+    "mdlp2",
+    "discr_if_needed"
+    ,"getclassitems"
+    )
+import(Matrix, methods)
+import(discretization)
+import(arules)
+importFrom("R.utils", "evalWithTimeout") 
