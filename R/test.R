@@ -6,36 +6,52 @@ library(arules)
 RuleModel <- setClass("RuleModel",
   slots = c(
     rules = "rules",
-    cutp = "list"
+    cutp = "list",
+    classatt ="character"
   )
 )
 
-setGeneric("rulematch", function(rm,test) {
+setGeneric("rulematch", function(rulemodel,test) {
   standardGeneric("rulematch")
 })
 
-setMethod("rulematch", signature(rm = "RuleModel", test = "data.frame"), function(rm,test) {
-  # implement a method taking on input also data frame with test data
-  # apply rm@cutp on test data using "cut"
-  # then create a one dimensional matrix, considering only the subset of items in rules@lhs@itemInfo (! which contains also class items ! )
-  # multiply the one dimensional vector with each rule i, check if length matches rules[i]@quality$length
-  ## multiply 
-  ## 
-  #get logical matrix showing which rules (rows) match which transactions (columns)
+setMethod("rulematch", signature(rulemodel = "RuleModel", test = "data.frame"), function(rulemodel,test) {
+
+  gtruth<-NULL
+  #check if test data contain also class attribute
+  if (rulemodel@classatt %in% colnames(test))
+  {
+    #if so remove it separate it from the dest dataset into gtruth 
+    gtruth<-test[[rulemodel@classatt]]
+    test<-within(test, rm(list=(rulemodel@classatt)))
+  }
+  # apply any discretization that was applied on the train data also on test data
+  test_discr<-apply_cuts(rulemodel@cutp,test)
+  test_txns <- as(test_discr, "transactions")
   
-  #apply rm@cutp on train
-  test<-apply_cuts(rm@cutp,test)
-  txns <- as(test, "transactions")
-  t<-is.subset(rules@lhs,txns)
-  #get row index of first rule matching each transaction
-  matches<-apply(t, 2, function(x) min(which(t[,x]==TRUE)))
-  # for each elemenent in the matches vector (i.e. index of first matching rule) 
+  # t is logical matrix with |rules| rows |test instances| columns
+  # the unname function is not strictly necessary, but it may save memory for larger data:
+  #  as the is.subset function returns concatenated attribute  values as the name for each column (test instance)
+  t<-unname(is.subset(rulemodel@rules@lhs,test_txns))
+  # get row index of first rule matching each transaction
+  matches<-apply(t, 2, function(x) min(which(x==TRUE)))
+  # for each element in the matches vector (i.e. index of first matching rule) 
   # get the index of the item on the right hand side of this rule which is true
   # and lookup the name of this item in iteminfo by this index
-  result<-lapply(matches, function(match) rules@rhs@itemInfo[which(rules@rhs[match]@data==TRUE),1] )
+  result<-droplevels(unlist(lapply(matches, function(match) rulemodel@rules@rhs@itemInfo[which(rulemodel@rules@rhs[match]@data==TRUE),][1,3])))
+  if (!is.null(gtruth))
+  {
+    #test and train data may not have the same set of distinct class values, which would result into an error caused by comparing factors with different levels
+    both<-union(levels(gtruth),levels(result))
+    accuracy<-mean(factor(gtruth,levels=both)==factor(result,levels=both))
+    
+    #accuracy<-mean(droplevels(droplevels(gtruth))==droplevels(droplevels(result)))
+    print(paste("Accuracy:",accuracy))
+  }
   return(result)
 })
 
+  
 discr_if_needed <- function(train,classatt)
 {
   discretize_class<-FALSE
@@ -85,14 +101,18 @@ learnprune_csv<- function(path,classatt=NULL,idcolumn=NULL,target_rule_count=500
   }
   
 }
-learnprune_iris<- function(auto=TRUE)
+learnprune_iris<- function()
 {
   data(iris)
-  return(example_learnprune(iris,"Species",1000,"CBA"))
-  
+  train<-iris[1:100,]
+  test<-iris[101:length(iris),]
+  # increase for more accurate results in longer time
+  target_rule_count<-1000
+  rm<-example_learnprune(test<-iris[101:length(iris),],target_rule_count=1000,classatt="Species")
+  rulematch(rm,test)
 }
 
-example_learnprune <- function(train,classatt,target_rule_count,pruning_type){
+example_learnprune <- function(train,classatt,target_rule_count,pruning_type="CBA"){
   discr<-discr_if_needed(train,classatt)
   
   txns<-as(discr$Disc.data,"transactions")
@@ -128,5 +148,6 @@ example_learnprune <- function(train,classatt,target_rule_count,pruning_type){
   rm <- RuleModel()
   rm@rules<-rules
   rm@cutp <-discr$cutp
+  rm@classatt <-classatt
   return(rm)
 }

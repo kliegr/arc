@@ -1,6 +1,6 @@
 library(R.utils)
 
-firstkrules <- function(data,classitems,target_rule_count=100,support=0.00,init_conf=0.5,conf_step=0.05,supp_step=0.05,minlen=2,init_maxlen=3,iteration_timeout=2.0,total_timeout=10.0,max_iterations=30)
+firstkrules <- function(data,classitems,target_rule_count=1000,support=0.00,init_conf=0.5,conf_step=0.05,supp_step=0.05,minlen=2,init_maxlen=3,iteration_timeout=2.0,total_timeout=10.0,max_iterations=30)
 {
   debug<-FALSE
   starttime<-proc.time()
