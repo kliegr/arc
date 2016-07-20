@@ -2,44 +2,94 @@ library(discretization)
 # heavily modified version of function mdlp from the discretize package:
 # handles missing values,allows to output data with labels, allows to automatically skip numeric columns, class does not need to be the last attribute
 
-apply_cuts <-function(cutp,data)
+apply_cuts <-function(cutp,data,infinite_bounds,labels)
 {
   xd <- data
-  print(cutp)
   for (i in 1:length(cutp)){
-    print(paste("processing variable",i))
     if (cutp[i]=="NULL")
     {
       #NULL string indicates do not perform any discretization
+      xd[,i]<-data[[i]]
       next
     }
     else if (cutp[i]=="All")
     {
       #String "All" indicates that all values should be covered by one interval
-      cuts <- c(-Inf,+Inf)
+      cuts <- c()
     }
     else{
-      cuts <- c(-Inf,cutp[i],+Inf)
+      cuts <- cutp[i]
     }
-      print(cuts)
       #make sure this line is exacty same as in mdlp2
       #TODO refactor mdlp2 to use this method to perform modification of the input dataframe in case labels parameter is set  to true
-      xd[,i] <- cut.semicolon(data[[i]],unlist(cuts),dig.lab=12,include.lowest = TRUE)
+      #xd[,i] <- cut.semicolon(data[[i]],unlist(cuts),dig.lab=12,include.lowest = TRUE)
+      xd[,i] <- apply_cut(data[[i]],cuts,infinite_bounds,labels)
     }
-  
+
   return (xd)
 }
-mdlp2 <-  function(data,handle_missing=FALSE,labels=FALSE,skip_nonnumeric=FALSE,class=NULL, infinite_bounds=FALSE){
+apply_cut <- function(column,cuts1,infinite_bounds,labels)
+{
+  cuts1<-unlist(cuts1)
+  if (infinite_bounds)
+  {
+    cuts <- c(-Inf,cuts1,+Inf)
+  }
+  else
+  {
+    cuts <- c(min(column),cuts1,max(column))
+  }
+  if (labels)
+  {
+    #the first arg in cuts cannot be x as in the original version
+    #because x may be a shorter vector due to omission of missing observations
+
+    #invoking cut.semicolon instead of cut  ensures that numbers in intervals are separated with semicolon not colon: "(0,1.05]" -> "(0;1.05]"
+    #the reason is that in the arules format colon would be overloaded: it is also used to separate items in a rule
+    #dig.lab=12 ensures that cut should not perform  rounding of interval boundaries (unless there is more than 12 digits, which is maximum in cut)
+    #if rounding is in place it can cause the interval not to match any instance
+
+    #make sure this line is exacty same as in apply_cuts
+    out <- cut.semicolon(column,cuts,dig.lab=12,include.lowest = TRUE)
+  }
+  else
+  {
+    out <- as.integer(cut(column,cuts, labels=FALSE, include.lowest = TRUE))
+  }
+
+  return(out)
+}
+
+discretizeUnsupervised <- function(data, labels=FALSE,skip_nonnumeric=FALSE,class=NULL, infinite_bounds=FALSE,categories=3)
+{
+  if (is.factor(data))
+  {
+    cutp <- "NULL"
+    xd<-data
+  }
+  else if (length(unique(data))<=categories)
+  {
+    cutp <- "NULL"
+    xd <- factor(data)
+  } else {
+    cutp<-discretize(data,  "frequency", categories=categories,onlycuts=TRUE)
+    #remove lower and upper bounds, so that they can be replaced by +-infinite
+    cutp <- cutp[-c(1,length(cutp))]
+    xd <-apply_cut(data,cutp,infinite_bounds=infinite_bounds,labels=labels)
+  }
+  return (list(cutp=cutp,Disc.data=xd))
+}
+mdlp2 <-  function(data,handle_missing=FALSE,labels=FALSE,skip_nonnumeric=FALSE,class=NULL, infinite_bounds=FALSE,min_distinct_values=3){
   if (is.null(class))
   {
     class<-length(data[1,])
   }
-  
+
   if (!handle_missing)
   {
-    y <- data[,class] 
+    y <- data[,class]
   }
-  
+
   xd <- data
   cutp <- list()
   for (i in 1:length(data[1,])){
@@ -47,63 +97,39 @@ mdlp2 <-  function(data,handle_missing=FALSE,labels=FALSE,skip_nonnumeric=FALSE,
     if (!is.numeric(data[[i]]) & skip_nonnumeric)
     {
       #this means that the output $discr "slot" will have on the "i" position string "NULL"
+      cutp[[i]] <- "NULL"
       next
     }
-    
+    if (length(unique(data[[i]]))<min_distinct_values)
+    {
+      xd[,i] <- as.factor(data[[i]])
+      next
+    }
 
     if (handle_missing)
     {
       data_<-na.omit(data[c(i,class)])
       x <- data_[,1]
       y <- data_[,2]
-      
-    }
-    else{
-      x <- data[,i]
     }
     # prevents the  'breaks' are not unique error
-    if (length(unique(x))<2) 
+    if (length(unique(x))<2)
     {
       if (labels)
       {
-        #if labels is set to true the result should be all factors
-        #in this case there is no discretization, so we need to convert the number to factor explicitly
+        cutp[[i]] <- "NULL"
+        # if labels is set to true the result should be all factors
+        # in this case there is no discretization, so we need to convert the number to factor explicitly
         xd[,i] <- as.factor(data[[i]])
       }
       next
     }
-    
-    
     cuts1 <- cutPoints(x,y)
-    if (infinite_bounds)
-    {
-      cuts <- c(-Inf,cuts1,+Inf)
-    }
-    else
-    {
-      cuts <- c(min(x),cuts1,max(x))
-    }
-
     cutp[[i]] <- cuts1
     if(length(cutp[[i]])==0) cutp[[i]] <- "All"
-    if (labels)
-    {
-      #the first arg in cuts cannot be x as in the original version
-      #because x may be a shorter vector due to omission of missing observations
-      
-      #invoking cut.semicolon instead of cut  ensures that numbers in intervals are separated with semicolon not colon: "(0,1.05]" -> "(0;1.05]"
-      #the reason is that in the arules format colon would be overloaded: it is also used to separate items in a rule
-      #dig.lab=12 ensures that cut should not perform  rounding of interval boundaries (unless there is more than 12 digits, which is maximum in cut)
-      #if rounding is in place it can cause the interval not to match any instance
-      
-      #make sure this line is exacty same as in apply_cuts
-      xd[,i] <- cut.semicolon(data[[i]],cuts,dig.lab=12,include.lowest = TRUE)
-    }
-    else
-    {
-      xd[,i] <- as.integer(cut(data[[i]],cuts, labels=FALSE, include.lowest = TRUE))
-    }
-    
+
+    xd[,i] <- apply_cut(data[[i]],cuts1,infinite_bounds,labels)
+
   }
   return (list(cutp=cutp,Disc.data=xd))
 }

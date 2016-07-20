@@ -1,10 +1,22 @@
 Package: arc
-Title: What the Package Does (one line, title case)
-Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Title: Association Rule Classification
+Version: 1.0
+Author: Tomas Kliegr [aut, cre]
+Maintainer: Tomas Kliegr <kliegr@gmail.com>
+Description: This package currently implements the Classification-based on
+    Association Rules (CBA) algorithm for association rule classification (ARC). The
+    package also contains several convenience methods that allow to automatically
+    set CBA parameters (minimum confidence, minimum support) and it also natively
+    handles numeric attributes by integrating a pre-discretization step.
 Depends:
-    R (>= 3.2.3), arules, R.utils, discretization
-License: What license is it under?
+    R (>= 3.2.3),
+    arules,
+    R.utils,
+    discretization
+License: AGPL-3
 Encoding: UTF-8
 LazyData: true
+Imports:
+    Matrix,
+    methods
+RoxygenNote: 5.0.1

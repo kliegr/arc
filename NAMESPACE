@@ -5,10 +5,10 @@ export(
     "prunerules",
     "firstkrules",
     "mdlp2",
-    "discr_if_needed"
+    "discrNumeric"
     ,"getclassitems"
     )
 import(Matrix, methods)
 import(discretization)
 import(arules)
-importFrom("R.utils", "evalWithTimeout") 
+importFrom("R.utils", "evalWithTimeout")

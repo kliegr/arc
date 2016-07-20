@@ -1,8 +1,5 @@
 library(arules)
 
-
-
-
 RuleModel <- setClass("RuleModel",
   slots = c(
     rules = "rules",
@@ -11,66 +8,87 @@ RuleModel <- setClass("RuleModel",
   )
 )
 
-setGeneric("rulematch", function(rulemodel,test) {
-  standardGeneric("rulematch")
+#' method that matches rule model against test data
+#'
+#' @param rule_model a rule model class instance
+#' @param test a data frame with test data, the data frame may optionally contain the target class attribute - if it does, the method also computes and <i>prints</i> accuracy.
+#'
+#' @return factor with predictions for input instances
+#' @export
+#'
+#' @examples
+#' \code{
+#'   data(iris)
+#'   train<-iris[1:100,]
+#'   test<-iris[101:length(iris),]
+#'   increase for more accurate results in longer time
+#'   target_rule_count<-1000
+#'   rm<-example_learnprune(test<-iris[101:length(iris),],target_rule_count=1000,classatt="Species")
+#'   ruleMatch(rm,test)
+#' }
+#' @seealso Example \code{\link{learnprune_iris}}
+#'
+#'
+setGeneric("ruleMatch", function(rule_model,test) {
+  standardGeneric("ruleMatch")
 })
 
-setMethod("rulematch", signature(rulemodel = "RuleModel", test = "data.frame"), function(rulemodel,test) {
-
+setMethod("ruleMatch", signature(rule_model = "RuleModel", test = "data.frame"), function(rule_model,test) {
   gtruth<-NULL
   #check if test data contain also class attribute
-  if (rulemodel@classatt %in% colnames(test))
+  if (rule_model@classatt %in% colnames(test))
   {
-    #if so remove it separate it from the dest dataset into gtruth 
-    gtruth<-test[[rulemodel@classatt]]
-    test<-within(test, rm(list=(rulemodel@classatt)))
+    # if so separate it from the test dataset into gtruth
+    gtruth<-test[[rule_model@classatt]]
+    test<-within(test, rm(list=(rule_model@classatt)))
   }
-  # apply any discretization that was applied on the train data also on test data
-  test_discr<-apply_cuts(rulemodel@cutp,test)
-  test_txns <- as(test_discr, "transactions")
-  
+  # apply any discretization that was applied on train data also on test data
+  test.txns <- as(apply_cuts(rule_model@cutp,test,infinite_bounds=TRUE,labels=TRUE), "transactions")
+
   # t is logical matrix with |rules| rows |test instances| columns
   # the unname function is not strictly necessary, but it may save memory for larger data:
   #  as the is.subset function returns concatenated attribute  values as the name for each column (test instance)
-  t<-unname(is.subset(rulemodel@rules@lhs,test_txns))
+  t<-unname(is.subset(rule_model@rules@lhs,test.txns))
   # get row index of first rule matching each transaction
   matches<-apply(t, 2, function(x) min(which(x==TRUE)))
-  # for each element in the matches vector (i.e. index of first matching rule) 
+  # for each element in the matches vector (i.e. index of first matching rule)
   # get the index of the item on the right hand side of this rule which is true
   # and lookup the name of this item in iteminfo by this index
-  result<-droplevels(unlist(lapply(matches, function(match) rulemodel@rules@rhs@itemInfo[which(rulemodel@rules@rhs[match]@data==TRUE),][1,3])))
+  result<-droplevels(unlist(lapply(matches, function(match) rule_model@rules@rhs@itemInfo[which(rule_model@rules@rhs[match]@data==TRUE),][1,3])))
   if (!is.null(gtruth))
   {
     #test and train data may not have the same set of distinct class values, which would result into an error caused by comparing factors with different levels
     both<-union(levels(gtruth),levels(result))
     accuracy<-mean(factor(gtruth,levels=both)==factor(result,levels=both))
-    
-    #accuracy<-mean(droplevels(droplevels(gtruth))==droplevels(droplevels(result)))
     print(paste("Accuracy:",accuracy))
   }
   return(result)
 })
 
-  
-discr_if_needed <- function(train,classatt)
+
+discrNumeric <- function(train,classatt,min_distinct_values=3,unsupervised_bins=3, discretize_class=FALSE)
 {
-  discretize_class<-FALSE
-  classatt_col<-which( colnames(train)==classatt )
+
+  classatt_col<-which( colnames(train)==classatt)
   if(!is.factor(train[[classatt_col]]))
   {
-    if (length(unique(train[[classatt_col]]))>5 & discretize_class)
+    if (discretize_class)
     {
-      train[[classatt_col]] <- discretize(train[[classatt]],  "frequency", categories=3)
+      class_discr<-discretizeUnsupervised(train[[classatt]],labels=TRUE,infinite_bounds=TRUE,categories=unsupervised_bins)
+      train[[classatt_col]] <-apply_cut(train[[classatt_col]],class_discr$cutp,infinite_bounds=TRUE,labels=TRUE)
     }
     else
     {
       train[[classatt_col]] <- factor(train[[classatt_col]])
     }
   }
-  discr<-mdlp2(train,skip_nonnumeric=TRUE,labels=TRUE,handle_missing=TRUE,class=classatt_col,infinite_bounds=TRUE)
-  
+  discr<-mdlp2(train,skip_nonnumeric=TRUE,labels=TRUE,handle_missing=TRUE,class=classatt_col,infinite_bounds=TRUE,min_distinct_values)
+  if (exists("class_discr")){
+    discr$cutp[[classatt_col]]<-class_discr$cutp
+  }
+
   return (discr)
-  
+
 }
 
 getclassitems <- function(train,classatt){
@@ -79,9 +97,6 @@ getclassitems <- function(train,classatt){
   return(classitems)
 }
 
-#learnprune_csv("/home/tomas/Dropbox/Projekty/MARC/experiments/dev/train/car5.csv",,,,"/home/big/car5.csv")
-#learnprune_csv("/home/tomas/Dropbox/Projekty/MARC/experiments/dev/train",,,,"/home/big/heart-h6.csv.arules")
-#path="/home/tomas/Dropbox/Projekty/MARC/experiments/dev/train/credit-a6.csv"
 learnprune_csv<- function(path,classatt=NULL,idcolumn=NULL,target_rule_count=50000,pruning_type="CBA",outpath=NULL)
 {
   train<-read.csv(path,header=TRUE, check.names=FALSE)
@@ -89,7 +104,7 @@ learnprune_csv<- function(path,classatt=NULL,idcolumn=NULL,target_rule_count=500
   {
     train<-subset( train, select = -c (idcolumn) )
   }
-  
+
   if (is.null(classatt))
   {
     classatt<-colnames(train)[ncol(train)]
@@ -97,9 +112,9 @@ learnprune_csv<- function(path,classatt=NULL,idcolumn=NULL,target_rule_count=500
   rules<-example_learnprune(train,classatt,target_rule_count,pruning_type)
   if (!is.null(outpath))
   {
-    write.csv(as(rules,"data.frame"), outpath, row.names=TRUE,quote = TRUE)
+    write.csv(as(rules@rules,"data.frame"), outpath, row.names=TRUE,quote = TRUE)
   }
-  
+
 }
 learnprune_iris<- function()
 {
@@ -109,15 +124,15 @@ learnprune_iris<- function()
   # increase for more accurate results in longer time
   target_rule_count<-1000
   rm<-example_learnprune(test<-iris[101:length(iris),],target_rule_count=1000,classatt="Species")
-  rulematch(rm,test)
+  ruleMatch(rm,test)
 }
 
 example_learnprune <- function(train,classatt,target_rule_count,pruning_type="CBA"){
-  discr<-discr_if_needed(train,classatt)
-  
+  discr<-discrNumeric(train,classatt)
+
   txns<-as(discr$Disc.data,"transactions")
   classitems<-getclassitems(train,classatt)
-  
+
   start.time <- Sys.time()
   if (TRUE)
   {
@@ -129,7 +144,7 @@ example_learnprune <- function(train,classatt,target_rule_count,pruning_type="CB
   }
   end.time <- Sys.time()
   print (time.taken <- end.time - start.time)
-  
+
   start.time <- Sys.time()
   default_rule_pruning<-FALSE
   if (pruning_type=="CBA_NO_DEFAULT")
@@ -143,7 +158,7 @@ example_learnprune <- function(train,classatt,target_rule_count,pruning_type="CB
   rules <-prunerules(rules, txns,classitems,100,default_rule_pruning)
   end.time <- Sys.time()
   print (time.taken <- end.time - start.time)
-  
+
   #bundle cutpoints with rule set into one object
   rm <- RuleModel()
   rm@rules<-rules
