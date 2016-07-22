@@ -1,66 +1,161 @@
+#' @import discretization
 library(discretization)
-# heavily modified version of function mdlp from the discretize package:
-# handles missing values,allows to output data with labels, allows to automatically skip numeric columns, class does not need to be the last attribute
 
-apply_cuts <-function(cutp,data,infinite_bounds,labels)
+
+
+#'
+
+#' Method that matches rule model against test data.
+#'
+#' @param df a data frame with data.
+#' @param classatt name the class attribute in df
+#' @param min_distinct_values the minimum number of unique values a column needs to have to be subject to supervised discretization.
+#' @param unsupervised_bins  number of target bins for  discretizing the class attribute. Ignored when the class attribute is not numeric or when discretize_class is set to FALSE.
+#' @param discretize_class logical value indicating whether the class attribute should be discretized. Ignored when the class attribute is not numeric.
+#'
+#' @return list with two slots: $cutp with cutpoints and $Disc.data with discretization results
+#'
+#' @examples
+#' \code{
+#'   data(iris)
+#'   discrNumeric(iris,"Species")
+#' }
+#'
+#'
+#' @export
+discrNumeric <- function(df,classatt,min_distinct_values=3,unsupervised_bins=3, discretize_class=FALSE)
 {
-  xd <- data
+  classatt_col<-which(colnames(df)==classatt)
+  if(!is.factor(df[[classatt_col]]))
+  {
+    if (discretize_class)
+    {
+      class_discr<-discretizeUnsupervised(df[[classatt]],labels=TRUE,infinite_bounds=TRUE,categories=unsupervised_bins)
+      df[[classatt_col]] <-applyCut(df[[classatt_col]],class_discr$cutp,infinite_bounds=TRUE,labels=TRUE)
+    }
+    else
+    {
+      df[[classatt_col]] <- factor(df[[classatt_col]])
+    }
+  }
+  discr<-mdlp2(df,class=classatt_col,skip_nonnumeric=TRUE,labels=TRUE,handle_missing=TRUE,infinite_bounds=TRUE,min_distinct_values)
+  if (exists("class_discr")){
+    discr$cutp[[classatt_col]]<-class_discr$cutp
+  }
+  return (discr)
+
+}
+#' Function that applies cut points on input data.
+#'
+#' @param df input data frame.
+#' @param cutp a list of vectors with cutpoints @seealso \code{\link{applyCut}}.
+#' @param infinite_bounds a logical indicating how the bounds on the extremes should look like.
+#' @param labels a logical indicating whether the bins of the discretized data should be represented by integer codes or as interval notation using (a;b] when set to TRUE.
+#' @return discretized data. If there was no discretization specified for some columns, these are returned as is.
+#' @export
+#'
+#' @examples
+#' \code{
+#'
+#'   applyCuts(iris,list(c(5,6),c(2,3),"All","NULL","NULL"),TRUE,TRUE)
+#'
+#' }
+#' @seealso{apply_cut}
+#'
+
+applyCuts <-function(df,cutp,infinite_bounds,labels)
+{
+  xd <- df
   for (i in 1:length(cutp)){
-    if (cutp[i]=="NULL")
-    {
-      #NULL string indicates do not perform any discretization
-      xd[,i]<-data[[i]]
-      next
-    }
-    else if (cutp[i]=="All")
-    {
-      #String "All" indicates that all values should be covered by one interval
-      cuts <- c()
-    }
-    else{
-      cuts <- cutp[i]
-    }
-      #make sure this line is exacty same as in mdlp2
-      #TODO refactor mdlp2 to use this method to perform modification of the input dataframe in case labels parameter is set  to true
-      #xd[,i] <- cut.semicolon(data[[i]],unlist(cuts),dig.lab=12,include.lowest = TRUE)
-      xd[,i] <- apply_cut(data[[i]],cuts,infinite_bounds,labels)
+
+      xd[,i] <- applyCut(df[[i]],cutp[[i]],infinite_bounds,labels)
     }
 
   return (xd)
 }
-apply_cut <- function(column,cuts1,infinite_bounds,labels)
+
+#' Function that applies cut points on input column.
+#'
+#' @param col input vector with data.
+#' @param cuts1 vector with cutpoints.
+#' There are several special values defined:
+#' \itemize{
+#' \item NULL indicates that no discretization will be performed,
+#' \item All indicates all values will be merged into one.
+#' }
+
+#' @param infinite_bounds a logical indicating how the bounds on the extremes should look like.
+#'  If set to FALSE, the leftmost/rightmost intervals will be bounded by the minimum and maximum in the respective column.
+#'  If set to TRUE, the leftmost/rightmost intervals will be bounded by negative and positive infinity.
+#' @param labels a logical indicating whether the bins of the discretized data should be represented by integer codes or as interval notation using (a;b] when set to TRUE.
+#'
+#' @return Vector with discretized data.
+#' @export
+#'
+#' @examples
+#' \code{
+#'   applyCut(iris[[1]],c(3,6),TRUE,TRUE)
+#'
+#' }
+#' @seealso \code{\link{applyCuts}}
+#'
+applyCut <- function(col,cuts,infinite_bounds,labels)
 {
-  cuts1<-unlist(cuts1)
+  cuts1<-unlist(cuts)
+  if (cuts1[1]=="NULL")
+  {
+    return(col)
+  }
+  else if (cuts1[1]=="All")
+  {
+    #String "All" indicates that all values should be covered by one interval
+    cuts1 <- c()
+  }
   if (infinite_bounds)
   {
-    cuts <- c(-Inf,cuts1,+Inf)
+    cuts1 <- c(-Inf,cuts1,+Inf)
   }
   else
   {
-    cuts <- c(min(column),cuts1,max(column))
+    cuts1 <- c(min(col),cuts1,max(col))
   }
   if (labels)
   {
-    #the first arg in cuts cannot be x as in the original version
-    #because x may be a shorter vector due to omission of missing observations
+    # the first arg in cuts cannot be x as in the original version
+    # because x may be a shorter vector due to omission of missing observations
 
-    #invoking cut.semicolon instead of cut  ensures that numbers in intervals are separated with semicolon not colon: "(0,1.05]" -> "(0;1.05]"
-    #the reason is that in the arules format colon would be overloaded: it is also used to separate items in a rule
-    #dig.lab=12 ensures that cut should not perform  rounding of interval boundaries (unless there is more than 12 digits, which is maximum in cut)
-    #if rounding is in place it can cause the interval not to match any instance
+    # invoking cutSemicolon instead of cut  ensures that numbers in intervals are separated with semicolon not colon: "(0,1.05]" -> "(0;1.05]"
+    # the reason is that in the arules format colon would be overloaded: it is also used to separate items in a rule
+    # dig.lab=12 ensures that cut should not perform  rounding of interval boundaries (unless there is more than 12 digits, which is maximum in cut)
+    # if rounding is in place it can cause the interval not to match any instance
 
-    #make sure this line is exacty same as in apply_cuts
-    out <- cut.semicolon(column,cuts,dig.lab=12,include.lowest = TRUE)
+    out <- cutSemicolon(col,cuts1,dig.lab=12,include.lowest = TRUE)
   }
   else
   {
-    out <- as.integer(cut(column,cuts, labels=FALSE, include.lowest = TRUE))
+    out <- as.integer(cut(col,cuts1, labels=FALSE, include.lowest = TRUE))
   }
 
   return(out)
 }
 
-discretizeUnsupervised <- function(data, labels=FALSE,skip_nonnumeric=FALSE,class=NULL, infinite_bounds=FALSE,categories=3)
+#' Performs unsupervised discretization.
+#'
+#' @param categories number of categories (bins) to produce.
+#' @param data input numeric vector.
+#' @param infinite_bounds a logical indicating how the bounds on the extremes should look like.
+#' @param labels a logical indicating whether the bins of the discretized data should be represented by integer codes or as interval notation using (a;b] when set to TRUE.
+#' @return Discretized data. If there was no discretization specified for some columns, these are returned as is.
+#' @export
+#'
+#' @examples
+#' \code{
+#'   cba_csv("iris.csv","iris-rules.csv")
+#'
+#' }
+#'
+
+discretizeUnsupervised <- function(data, labels=FALSE, infinite_bounds=FALSE,categories=3)
 {
   if (is.factor(data))
   {
@@ -79,38 +174,63 @@ discretizeUnsupervised <- function(data, labels=FALSE,skip_nonnumeric=FALSE,clas
   }
   return (list(cutp=cutp,Disc.data=xd))
 }
-mdlp2 <-  function(data,handle_missing=FALSE,labels=FALSE,skip_nonnumeric=FALSE,class=NULL, infinite_bounds=FALSE,min_distinct_values=3){
-  if (is.null(class))
+#' Performs supervised discretization.
+#'
+#' @param df input data frame.
+#' @param handle_missing Setting to TRUE activates the following behaviour: if there are any missing observations in the column processed,
+#'  the input for discretization is a subset of data containing this column and target with rows containing missing values excuded.
+#' @param infinite_bounds A logical indicating how the bounds on the extremes should look like.
+#' @param skip_nonnumeric If set to TRUE, any non-numeric columns will be skipped.
+#' @param min_distinct_values If a column contains less than specified number of distinct values, it is not discretized.
+#' @param class_index index of the class variable. If not specified, the last column is used as the class variable.
+#' @param labels A logical indicating whether the bins of the discretized data should be represented by integer codes or as interval notation using (a;b] when set to TRUE.
+#'
+#' @return Discretized data. If there were any non-numeric input columns they are returned as is. All returned columns except class are factors.
+#' @export
+#'
+#' @examples
+#' \code{
+#'   mdlp2(iris) #gives the same result as mdlp(iris) from discretize package
+#'   #uses Sepal.Length as target variable
+#'   mdlp2(iris,handle_missing=TRUE,labels=TRUE,skip_nonnumeric=TRUE,infinite_bounds=TRUE,min_distinct_values=30,class=1)
+#' }
+#'
+
+mdlp2 <-  function(df,class_index=NULL,handle_missing=FALSE,labels=FALSE,skip_nonnumeric=FALSE, infinite_bounds=FALSE,min_distinct_values=3){
+  if (is.null(class_index))
   {
-    class<-length(data[1,])
+    class_index<-length(df[1,])
   }
 
   if (!handle_missing)
   {
-    y <- data[,class]
+    y <- df[,class_index]
   }
-
-  xd <- data
+  xd <- df
   cutp <- list()
-  for (i in 1:length(data[1,])){
-    if (i==class) next
-    if (!is.numeric(data[[i]]) & skip_nonnumeric)
+  for (i in 1:length(df[1,])){
+    print(i)
+    if (i==class_index) next
+    if (!is.numeric(df[[i]]) & skip_nonnumeric)
     {
-      #this means that the output $discr "slot" will have on the "i" position string "NULL"
       cutp[[i]] <- "NULL"
       next
     }
-    if (length(unique(data[[i]]))<min_distinct_values)
+    if (length(unique(df[[i]]))<min_distinct_values)
     {
-      xd[,i] <- as.factor(data[[i]])
+      xd[,i] <- as.factor(df[[i]])
       next
     }
 
     if (handle_missing)
     {
-      data_<-na.omit(data[c(i,class)])
+      data_<-na.omit(df[c(i,class_index)])
       x <- data_[,1]
       y <- data_[,2]
+    }
+    else
+    {
+      x <- df[[i]]
     }
     # prevents the  'breaks' are not unique error
     if (length(unique(x))<2)
@@ -120,15 +240,15 @@ mdlp2 <-  function(data,handle_missing=FALSE,labels=FALSE,skip_nonnumeric=FALSE,
         cutp[[i]] <- "NULL"
         # if labels is set to true the result should be all factors
         # in this case there is no discretization, so we need to convert the number to factor explicitly
-        xd[,i] <- as.factor(data[[i]])
+        xd[,i] <- as.factor(df[[i]])
       }
       next
-    }
-    cuts1 <- cutPoints(x,y)
-    cutp[[i]] <- cuts1
-    if(length(cutp[[i]])==0) cutp[[i]] <- "All"
 
-    xd[,i] <- apply_cut(data[[i]],cuts1,infinite_bounds,labels)
+    }
+
+    cutp[[i]] <-  cutPoints(x,y)
+    if(length(cutp[[i]])==0) cutp[[i]] <- "All"
+    xd[,i] <- applyCut(df[[i]],cutp[[i]],infinite_bounds,labels)
 
   }
   return (list(cutp=cutp,Disc.data=xd))
@@ -136,7 +256,7 @@ mdlp2 <-  function(data,handle_missing=FALSE,labels=FALSE,skip_nonnumeric=FALSE,
 
 #cut function from R.base with one modification
 #numbers are separated with semicolon instead of comma
-cut.semicolon <-
+cutSemicolon <-
   function (x, breaks, labels = NULL, include.lowest = FALSE,
             right = TRUE, dig.lab = 3L, ordered_result = FALSE, ...)
   {
