@@ -16,4 +16,13 @@ This class represents a rule-based classifier.
 \item{classatt}{The name of the class attribute}
  }
 }
+\section{Slots}{
+
+\describe{
+\item{\code{rules}}{an object of class rules from arules package}
+
+\item{\code{cutp}}{list of cutpoints}
+
+\item{\code{classatt}}{name of the target class attribute}
+}}
 

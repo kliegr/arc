@@ -1,15 +1,17 @@
-library(arules)
-#' @title Default rule pruning parameters
+
 #' @import Matrix methods arules
+#'
+library(arules)
+library(R.utils)
 
-#' @name DEFAULT_PRUNING_SETUP
-setOption("DEFAULT_PRUNING_SETUP",list(default_rule_pruning=TRUE, rule_window=100))
 
+#'
 #' An implementation of the CBA-CB M1 algorithm adapted for R and arules package apriori implementation in place of CBA-RG.
 #'
-#' @param data input dataframe or transactions.
+#' @param rules object of class rules from arules package
+#' @param txns input object with transactions.
 #' @param classitems a list of items to appear in the consequent (rhs) of the rules.
-#' @param custom_alg_options a list of custom options, any options specified will override those defined by the \link{DEFAULT_RULE_LEARNING_SETUP} variable. These options are
+#' @param custom_alg_options a list of custom options, any options specified will override those defined by the DEFAULT_RULE_LEARNING_SETUP variable. These options are
 #'  \itemize{
 #'   \item \strong{default_rule_pruning}: boolean indicating whether default pruning should be performed. If set to TRUE, default pruning is performed as in the CBA algorithm.
 #'   If set to FALSE, default pruning is not performed i.e. all rules surviving data coverage pruning are kept. In either case, a default rule is added to the end of the classifier.
@@ -21,18 +23,18 @@ setOption("DEFAULT_PRUNING_SETUP",list(default_rule_pruning=TRUE, rule_window=10
 #' @export
 #'
 #' @examples
-#' \code{
-#'   data(iris)
+#'   #data(iris)
 #'   txns <- as(discrNumeric(iris, "Species")$Disc.data,"transactions")
 #'   classitems <- getItems(iris,"Species")
-#'   rules <- apriori(txns, parameter = list(confidence = 0.5, support= 0.01, minlen= 2, maxlen= 4),appearance = list(rhs = classitems,default="lhs"))
+#'   rules <- apriori(txns, parameter = list(confidence = 0.5,
+#'   support= 0.01, minlen= 2, maxlen= 4),appearance = list(rhs = classitems,default="lhs"))
 #'   prune(rules,txns, classitems)
 #'   inspect(rules)
-#' }
 #' @seealso \code{\link{topRules}}
 #'
 prune <- function  (rules, txns, classitems,custom_alg_options=NULL,debug=FALSE){
-  alg_options<-replace(getOption("DEFAULT_PRUNING_SETUP"),names(custom_alg_options),custom_alg_options)
+  alg_options<-replace(default_pruning_setup(),
+    names(custom_alg_options),custom_alg_options)
 
   # compute rule length
   tryCatch(
@@ -99,7 +101,8 @@ prune <- function  (rules, txns, classitems,custom_alg_options=NULL,debug=FALSE)
       # this operation would also work without the subsetting by classitemspositions
       # now do the same thing for rhs
       # Performance tip: ngCMatrix can be cast to dgCMatrix just once, outside the loop for the entire matrix
-      RT.rhs<-t(as(rules@rhs@data[classitemspositions,ws:we,drop = FALSE],"dgCMatrix")) %*% as(txns@data[classitemspositions,,drop = FALSE],"dgCMatrix")
+      RT.rhs<-t(as(rules@rhs@data[classitemspositions,ws:we,drop = FALSE],
+        "dgCMatrix")) %*% as(txns@data[classitemspositions,,drop = FALSE],"dgCMatrix")
 
       # thus the rule r's lhs matches the transaction t iff M[r,t] == number of items in t is the same as number of items in lhs of  rule r,
       RT.matches_lhs<-(rules[ws:we]@quality$lhs_length==RT.lhs)

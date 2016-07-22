@@ -18,17 +18,14 @@ factor with predictions for input instances
 method that matches rule model against test data
 }
 \examples{
-\\code{
-  data(iris)
+  #data(iris)
   train<-iris[1:100,]
   test<-iris[101:length(iris),]
-  increase for more accurate results in longer time
+  #increase for more accurate results in longer time
   target_rule_count<-1000
-  rm<-cba(test<-iris[101:length(iris),],target_rule_count=1000,classatt="Species")
+  rm<-cba(train,"Species",list(target_rule_count=target_rule_count))
   ruleMatch(rm,test)
-}
-}
-\seealso{
-Example \code{\link{learnprune_iris}}
+
+
 }
 

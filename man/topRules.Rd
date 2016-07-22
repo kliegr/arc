@@ -12,7 +12,7 @@ topRules(txns, classitems, custom_alg_options = NULL, debug = FALSE)
 
 \item{classitems}{a list of items to appear in the consequent (rhs) of the rules}
 
-\item{custom_alg_options}{a list of custom options, any options specified will override those defined by the \link{DEFAULT_RULE_LEARNING_SETUP} variable
+\item{custom_alg_options}{a list of custom options, any options specified will override those defined by the DEFAULT_RULE_LEARNING_SETUP variable
 \itemize{
  \item \strong{target_rule_count}: the main stopping criterion, mining stops when the resulting rule set contains this number of rules,
  \item \strong{init_support}: initial support,
@@ -36,10 +36,8 @@ A wrapper for the arules method from the apriori package that iteratively change
 Within the arc package, this function serves as a replacement for the CBA-RG algorithm (without pessimistic pruning) with general apriori implementation provided by existing fast R package \strong{arules}.
 }
 \examples{
-\\code{
   topRules(as(discrNumeric(iris, "Species")$Disc.data,"transactions"), getItems(iris,"Species"))
 
-}
 }
 \seealso{
 \code{\link{prune}}

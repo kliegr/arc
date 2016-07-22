@@ -7,9 +7,13 @@
 prune(rules, txns, classitems, custom_alg_options = NULL, debug = FALSE)
 }
 \arguments{
+\item{rules}{object of class rules from arules package}
+
+\item{txns}{input object with transactions.}
+
 \item{classitems}{a list of items to appear in the consequent (rhs) of the rules.}
 
-\item{custom_alg_options}{a list of custom options, any options specified will override those defined by the \link{DEFAULT_RULE_LEARNING_SETUP} variable. These options are
+\item{custom_alg_options}{a list of custom options, any options specified will override those defined by the DEFAULT_RULE_LEARNING_SETUP variable. These options are
 \itemize{
  \item \strong{default_rule_pruning}: boolean indicating whether default pruning should be performed. If set to TRUE, default pruning is performed as in the CBA algorithm.
  If set to FALSE, default pruning is not performed i.e. all rules surviving data coverage pruning are kept. In either case, a default rule is added to the end of the classifier.
@@ -17,8 +21,6 @@ prune(rules, txns, classitems, custom_alg_options = NULL, debug = FALSE)
  }}
 
 \item{debug}{output debug messages.}
-
-\item{data}{input dataframe or transactions.}
 }
 \value{
 Returns an object of class \link{rules}.
@@ -27,14 +29,13 @@ Returns an object of class \link{rules}.
 An implementation of the CBA-CB M1 algorithm adapted for R and arules package apriori implementation in place of CBA-RG.
 }
 \examples{
-\\code{
-  data(iris)
+  #data(iris)
   txns <- as(discrNumeric(iris, "Species")$Disc.data,"transactions")
   classitems <- getItems(iris,"Species")
-  rules <- apriori(txns, parameter = list(confidence = 0.5, support= 0.01, minlen= 2, maxlen= 4),appearance = list(rhs = classitems,default="lhs"))
+  rules <- apriori(txns, parameter = list(confidence = 0.5,
+  support= 0.01, minlen= 2, maxlen= 4),appearance = list(rhs = classitems,default="lhs"))
   prune(rules,txns, classitems)
   inspect(rules)
-}
 }
 \seealso{
 \code{\link{topRules}}

@@ -25,11 +25,8 @@ list with two slots: $cutp with cutpoints and $Disc.data with discretization res
 Method that matches rule model against test data.
 }
 \examples{
-\\code{
-  data(iris)
+  #data(iris)
   discrNumeric(iris,"Species")
-}
-
 
 }
 

@@ -22,10 +22,7 @@ Object of class \link{RuleModel}.
 example workflow that reads a data file from csv, learns a cba rule set and saves the resulting rule set back to csv.
 }
 \examples{
-\\code{
-  rulelearning_options <- list(target_rule_count=50000)
-  cba(iris,"Species",rulelearning_options)
+  cba(iris,"Species",rulelearning_options=list(target_rule_count=50000))
   data(iris)
-}
 }
 

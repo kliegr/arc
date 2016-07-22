@@ -22,13 +22,10 @@ discretized data. If there was no discretization specified for some columns, the
 Function that applies cut points on input data.
 }
 \examples{
-\\code{
-
   applyCuts(iris,list(c(5,6),c(2,3),"All","NULL","NULL"),TRUE,TRUE)
-
-}
+  
 }
 \seealso{
-{apply_cut}
+{applyCut}
 }
 

@@ -23,10 +23,7 @@ Discretized data. If there was no discretization specified for some columns, the
 Performs unsupervised discretization.
 }
 \examples{
-\\code{
-  cba_csv("iris.csv","iris-rules.csv")
-
-}
+  discretizeUnsupervised(iris[[1]])
 
 }
 

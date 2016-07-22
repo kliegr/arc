@@ -1,10 +1,6 @@
 #' @import discretization
 library(discretization)
 
-
-
-#'
-
 #' Method that matches rule model against test data.
 #'
 #' @param df a data frame with data.
@@ -16,31 +12,28 @@ library(discretization)
 #' @return list with two slots: $cutp with cutpoints and $Disc.data with discretization results
 #'
 #' @examples
-#' \code{
-#'   data(iris)
+#'   #data(iris)
 #'   discrNumeric(iris,"Species")
-#' }
-#'
 #'
 #' @export
 discrNumeric <- function(df,classatt,min_distinct_values=3,unsupervised_bins=3, discretize_class=FALSE)
 {
-  classatt_col<-which(colnames(df)==classatt)
-  if(!is.factor(df[[classatt_col]]))
+  cl_index<-which(colnames(df)==classatt)
+  if(!is.factor(df[[cl_index]]))
   {
     if (discretize_class)
     {
       class_discr<-discretizeUnsupervised(df[[classatt]],labels=TRUE,infinite_bounds=TRUE,categories=unsupervised_bins)
-      df[[classatt_col]] <-applyCut(df[[classatt_col]],class_discr$cutp,infinite_bounds=TRUE,labels=TRUE)
+      df[[cl_index]] <-applyCut(df[[cl_index]],class_discr$cutp,infinite_bounds=TRUE,labels=TRUE)
     }
     else
     {
-      df[[classatt_col]] <- factor(df[[classatt_col]])
+      df[[cl_index]] <- factor(df[[cl_index]])
     }
   }
-  discr<-mdlp2(df,class=classatt_col,skip_nonnumeric=TRUE,labels=TRUE,handle_missing=TRUE,infinite_bounds=TRUE,min_distinct_values)
+  discr<-mdlp2(df,cl_index=cl_index,skip_nonnumeric=TRUE,labels=TRUE,handle_missing=TRUE,infinite_bounds=TRUE,min_distinct_values)
   if (exists("class_discr")){
-    discr$cutp[[classatt_col]]<-class_discr$cutp
+    discr$cutp[[cl_index]]<-class_discr$cutp
   }
   return (discr)
 
@@ -55,12 +48,9 @@ discrNumeric <- function(df,classatt,min_distinct_values=3,unsupervised_bins=3, 
 #' @export
 #'
 #' @examples
-#' \code{
-#'
 #'   applyCuts(iris,list(c(5,6),c(2,3),"All","NULL","NULL"),TRUE,TRUE)
-#'
-#' }
-#' @seealso{apply_cut}
+#'   
+#' @seealso{applyCut}
 #'
 
 applyCuts <-function(df,cutp,infinite_bounds,labels)
@@ -77,7 +67,7 @@ applyCuts <-function(df,cutp,infinite_bounds,labels)
 #' Function that applies cut points on input column.
 #'
 #' @param col input vector with data.
-#' @param cuts1 vector with cutpoints.
+#' @param cuts vector with cutpoints.
 #' There are several special values defined:
 #' \itemize{
 #' \item NULL indicates that no discretization will be performed,
@@ -93,10 +83,7 @@ applyCuts <-function(df,cutp,infinite_bounds,labels)
 #' @export
 #'
 #' @examples
-#' \code{
 #'   applyCut(iris[[1]],c(3,6),TRUE,TRUE)
-#'
-#' }
 #' @seealso \code{\link{applyCuts}}
 #'
 applyCut <- function(col,cuts,infinite_bounds,labels)
@@ -149,10 +136,7 @@ applyCut <- function(col,cuts,infinite_bounds,labels)
 #' @export
 #'
 #' @examples
-#' \code{
-#'   cba_csv("iris.csv","iris-rules.csv")
-#'
-#' }
+#'   discretizeUnsupervised(iris[[1]])
 #'
 
 discretizeUnsupervised <- function(data, labels=FALSE, infinite_bounds=FALSE,categories=3)
@@ -170,7 +154,7 @@ discretizeUnsupervised <- function(data, labels=FALSE, infinite_bounds=FALSE,cat
     cutp<-discretize(data,  "frequency", categories=categories,onlycuts=TRUE)
     #remove lower and upper bounds, so that they can be replaced by +-infinite
     cutp <- cutp[-c(1,length(cutp))]
-    xd <-apply_cut(data,cutp,infinite_bounds=infinite_bounds,labels=labels)
+    xd <-applyCut(data,cutp,infinite_bounds=infinite_bounds,labels=labels)
   }
   return (list(cutp=cutp,Disc.data=xd))
 }
@@ -182,35 +166,35 @@ discretizeUnsupervised <- function(data, labels=FALSE, infinite_bounds=FALSE,cat
 #' @param infinite_bounds A logical indicating how the bounds on the extremes should look like.
 #' @param skip_nonnumeric If set to TRUE, any non-numeric columns will be skipped.
 #' @param min_distinct_values If a column contains less than specified number of distinct values, it is not discretized.
-#' @param class_index index of the class variable. If not specified, the last column is used as the class variable.
+#' @param cl_index index of the class variable. If not specified, the last column is used as the class variable.
 #' @param labels A logical indicating whether the bins of the discretized data should be represented by integer codes or as interval notation using (a;b] when set to TRUE.
 #'
 #' @return Discretized data. If there were any non-numeric input columns they are returned as is. All returned columns except class are factors.
 #' @export
 #'
 #' @examples
-#' \code{
 #'   mdlp2(iris) #gives the same result as mdlp(iris) from discretize package
 #'   #uses Sepal.Length as target variable
-#'   mdlp2(iris,handle_missing=TRUE,labels=TRUE,skip_nonnumeric=TRUE,infinite_bounds=TRUE,min_distinct_values=30,class=1)
-#' }
+#'   mdlp2(df=iris,cl_index=1,handle_missing=TRUE,labels=TRUE,
+#'   skip_nonnumeric=TRUE,infinite_bounds=TRUE,min_distinct_values=30)
 #'
 
-mdlp2 <-  function(df,class_index=NULL,handle_missing=FALSE,labels=FALSE,skip_nonnumeric=FALSE, infinite_bounds=FALSE,min_distinct_values=3){
-  if (is.null(class_index))
+mdlp2 <-  function(df,cl_index=NULL,handle_missing=FALSE,labels=FALSE,
+  skip_nonnumeric=FALSE, infinite_bounds=FALSE,min_distinct_values=3){
+  if (is.null(cl_index))
   {
-    class_index<-length(df[1,])
+    cl_index<-length(df[1,])
   }
 
   if (!handle_missing)
   {
-    y <- df[,class_index]
+    y <- df[,cl_index]
   }
   xd <- df
   cutp <- list()
   for (i in 1:length(df[1,])){
     print(i)
-    if (i==class_index) next
+    if (i==cl_index) next
     if (!is.numeric(df[[i]]) & skip_nonnumeric)
     {
       cutp[[i]] <- "NULL"
@@ -224,7 +208,7 @@ mdlp2 <-  function(df,class_index=NULL,handle_missing=FALSE,labels=FALSE,skip_no
 
     if (handle_missing)
     {
-      data_<-na.omit(df[c(i,class_index)])
+      data_<-na.omit(df[c(i,cl_index)])
       x <- data_[,1]
       y <- data_[,2]
     }

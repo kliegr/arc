@@ -19,20 +19,15 @@ cbaCSV(path, outpath = NULL, classatt = NULL, idcolumn = NULL,
 \item{rulelearning_options}{custom options for the rule learning algorithm overriding the default values.}
 
 \item{pruning_options}{custom options for the pruning algorithm overriding the default values.}
-
-\item{target_rule_count}{the number of initial rules before pruning.}
 }
 \value{
-List of items. For example, for input column \code{Species} with distinct values \code{versicolor, setosa} returns a list of two items  \code{Species=versicolor, Species=setosa}
+Object of class \link{RuleModel}
 }
 \description{
 Example workflow that reads a data file from csv, learns a cba rule set and saves the resulting rule set back to csv.
 }
 \examples{
-\\code{
-  cbaCSV("data/KO_Bank_all.csv")
-
-}
+ # cbaCSV("KO_Bank_all.csv")
 
 
 }

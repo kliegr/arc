@@ -4,14 +4,14 @@
 \alias{mdlp2}
 \title{Performs supervised discretization.}
 \usage{
-mdlp2(df, class_index = NULL, handle_missing = FALSE, labels = FALSE,
+mdlp2(df, cl_index = NULL, handle_missing = FALSE, labels = FALSE,
   skip_nonnumeric = FALSE, infinite_bounds = FALSE,
   min_distinct_values = 3)
 }
 \arguments{
 \item{df}{input data frame.}
 
-\item{class_index}{index of the class variable. If not specified, the last column is used as the class variable.}
+\item{cl_index}{index of the class variable. If not specified, the last column is used as the class variable.}
 
 \item{handle_missing}{Setting to TRUE activates the following behaviour: if there are any missing observations in the column processed,
 the input for discretization is a subset of data containing this column and target with rows containing missing values excuded.}
@@ -31,11 +31,10 @@ Discretized data. If there were any non-numeric input columns they are returned 
 Performs supervised discretization.
 }
 \examples{
-\\code{
   mdlp2(iris) #gives the same result as mdlp(iris) from discretize package
   #uses Sepal.Length as target variable
-  mdlp2(iris,handle_missing=TRUE,labels=TRUE,skip_nonnumeric=TRUE,infinite_bounds=TRUE,min_distinct_values=30,class=1)
-}
+  mdlp2(df=iris,cl_index=1,handle_missing=TRUE,labels=TRUE,
+  skip_nonnumeric=TRUE,infinite_bounds=TRUE,min_distinct_values=30)
 
 }
 

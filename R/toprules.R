@@ -1,12 +1,6 @@
-library(R.utils)
-
 #' @importFrom R.utils evalWithTimeout
 #' @import arules
-
-#' @title Default rule learning parameters
-
-#' @name DEFAULT_PRUNING_SETUP
-setOption("DEFAULT_RULE_LEARNING_SETUP",list(target_rule_count=1000,init_support=0.00,init_conf=0.5,conf_step=0.05,supp_step=0.05,minlen=2,init_maxlen=3,iteration_timeout=2,total_timeout=100.0,max_iterations=30))
+library(R.utils)
 
 
 #' A wrapper for the arules method from the apriori package that iteratively changes mining parameters until a desired number of rules is obtained, all options are exhausted or a preset time limit is reached.
@@ -14,7 +8,7 @@ setOption("DEFAULT_RULE_LEARNING_SETUP",list(target_rule_count=1000,init_support
 #'
 #' @param txns input transactions
 #' @param classitems a list of items to appear in the consequent (rhs) of the rules
-#' @param custom_alg_options a list of custom options, any options specified will override those defined by the \link{DEFAULT_RULE_LEARNING_SETUP} variable
+#' @param custom_alg_options a list of custom options, any options specified will override those defined by the DEFAULT_RULE_LEARNING_SETUP variable
 #'  \itemize{
 #'   \item \strong{target_rule_count}: the main stopping criterion, mining stops when the resulting rule set contains this number of rules,
 #'   \item \strong{init_support}: initial support,
@@ -33,10 +27,8 @@ setOption("DEFAULT_RULE_LEARNING_SETUP",list(target_rule_count=1000,init_support
 #' @export
 #'
 #' @examples
-#' \code{
 #'   topRules(as(discrNumeric(iris, "Species")$Disc.data,"transactions"), getItems(iris,"Species"))
 #'
-#' }
 #' @seealso \code{\link{prune}}
 topRules <- function(txns,classitems,custom_alg_options=NULL,debug=FALSE)
 {
@@ -50,7 +42,7 @@ topRules <- function(txns,classitems,custom_alg_options=NULL,debug=FALSE)
     stop("txns cannot be null")
   }
 
-  alg_options<-replace(getOption("DEFAULT_RULE_LEARNING_SETUP"),names(custom_alg_options),custom_alg_options)
+  alg_options<-replace(default_rule_learning_setup(),names(custom_alg_options),custom_alg_options)
 
 
   MAX_RULE_LEN<-ncol(txns)-length(classitems)+1
@@ -75,7 +67,10 @@ topRules <- function(txns,classitems,custom_alg_options=NULL,debug=FALSE)
     }
     new_values<-tryCatch(
       {
-        rules <- evalWithTimeout({rules <- apriori(txns, parameter = list(confidence = conf, support= support, minlen= alg_options$minlen, maxlen= maxlen),appearance = list(rhs = classitems,default="lhs"));},timeout=alg_options$iteration_timeout, onTimeout="error");
+        rules <- evalWithTimeout({rules <- apriori(txns, parameter =
+          list(confidence = conf, support= support, minlen= alg_options$minlen, maxlen= maxlen),
+          appearance = list(rhs = classitems,default="lhs"));},
+          timeout=alg_options$iteration_timeout, onTimeout="error");
 
         rulecount<-length(rules)
         print(paste("Rule count:  ",rulecount))

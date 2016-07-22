@@ -7,7 +7,7 @@
 getItems(df, classatt)
 }
 \arguments{
-\item{df}{a data frame contain column \link{classatt}.}
+\item{df}{a data frame contain column \code{classatt}.}
 
 \item{classatt}{name of the column in df to generate items for.}
 }
@@ -18,11 +18,10 @@ a list of items.
 Method that generates items for values in given data frame column.
 }
 \examples{
-For input column \\texttt{Species} with distinct values \\texttt{versicolor, setosa}, the function returns a list of two items  \\texttt{Species=versicolor, Species=setosa}.
-\\code{
-  data(iris)
+#For input column \\code{Species} with distinct values \\code{versicolor, setosa},
+#the function returns a list of two items  \\code{Species=versicolor, Species=setosa}.
+#data(iris)
   getItems(iris,"Species")
-}
 
 
 }

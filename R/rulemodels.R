@@ -1,5 +1,38 @@
 library(arules)
 
+
+#' Default parameters for rule learning.
+#'
+#'@export
+#'@return A list with default parameter valuees
+#'
+default_rule_learning_setup <- function()
+{
+return (list(target_rule_count=1000,init_support=0.00,init_conf=0.5,conf_step=0.05,supp_step=0.05,minlen=2,init_maxlen=3,iteration_timeout=2,total_timeout=100.0,max_iterations=30)  )
+}
+
+#' Default parameters for pruning
+#'
+#'@export
+#'@return A list with default parameter valuees
+default_pruning_setup <- function()
+{
+  return (list(default_rule_pruning=TRUE, rule_window=100))
+}
+#' Sample dataset
+#'
+#' A sample credit scoring dataset
+#'
+#'
+#' @docType data
+#' @keywords datasets
+#' @name KO_Bank_all
+#' @usage data(KO_Bank_all)
+#' @format A comma separated csv file
+NULL
+
+
+
 #' RuleModel
 #'
 #' This class represents a rule-based classifier.
@@ -14,6 +47,9 @@ library(arules)
 #' @name RuleModel
 #' @rdname RuleModel
 #' @exportClass RuleModel
+#' @slot rules an object of class rules from arules package
+#' @slot cutp list of cutpoints
+#' @slot classatt name of the target class attribute
 RuleModel <- setClass("RuleModel",
   slots = c(
     rules = "rules",
@@ -31,16 +67,13 @@ RuleModel <- setClass("RuleModel",
 #' @export
 #'
 #' @examples
-#' \code{
-#'   data(iris)
+#'   #data(iris)
 #'   train<-iris[1:100,]
 #'   test<-iris[101:length(iris),]
-#'   increase for more accurate results in longer time
+#'   #increase for more accurate results in longer time
 #'   target_rule_count<-1000
-#'   rm<-cba(test<-iris[101:length(iris),],target_rule_count=1000,classatt="Species")
+#'   rm<-cba(train,"Species",list(target_rule_count=target_rule_count))
 #'   ruleMatch(rm,test)
-#' }
-#' @seealso Example \code{\link{learnprune_iris}}
 #'
 #'
 setGeneric("ruleMatch", function(rule_model,test) {
@@ -82,18 +115,17 @@ rulemodelAccuracy<- function(prediction,groundtruth)
 
 #' Method that generates items for values in given data frame column.
 #'
-#' @param df a data frame contain column \link{classatt}.
+#' @param df a data frame contain column \code{classatt}.
 #' @param classatt name of the column in df to generate items for.
 #'
 #' @return a list of items.
 #' @export
 #'
 #' @examples
-#'For input column \texttt{Species} with distinct values \texttt{versicolor, setosa}, the function returns a list of two items  \texttt{Species=versicolor, Species=setosa}.
-#' \code{
-#'   data(iris)
+#' #For input column \code{Species} with distinct values \code{versicolor, setosa},
+#' #the function returns a list of two items  \code{Species=versicolor, Species=setosa}.
+#' #data(iris)
 #'   getItems(iris,"Species")
-#' }
 #'
 #'
 getItems <- function(df,classatt){
@@ -105,22 +137,19 @@ getItems <- function(df,classatt){
 
 #' Example workflow that reads a data file from csv, learns a cba rule set and saves the resulting rule set back to csv.
 #'
-#' @param classatt the name of the class attribute.
 #' @param path path to csv file with data.
+#' @param outpath path to write the rule set to.
+#' @param classatt the name of the class attribute.
 #' @param idcolumn the name of the id column in the dataf ile.
-#' @param target_rule_count the number of initial rules before pruning.
 #' @param rulelearning_options custom options for the rule learning algorithm overriding the default values.
 #' @param pruning_options custom options for the pruning algorithm overriding the default values.
-#' @param outpath path to write the rule set to.
+
 #'
-#' @return List of items. For example, for input column \code{Species} with distinct values \code{versicolor, setosa} returns a list of two items  \code{Species=versicolor, Species=setosa}
+#' @return Object of class \link{RuleModel}
 #' @export
 #'
 #' @examples
-#' \code{
-#'   cbaCSV("data/KO_Bank_all.csv")
-#'
-#' }
+#'  # cbaCSV("KO_Bank_all.csv")
 #'
 #'
 cbaCSV<- function(path,outpath=NULL,classatt=NULL,idcolumn=NULL,rulelearning_options=NULL,pruning_options=NULL)
@@ -135,11 +164,12 @@ cbaCSV<- function(path,outpath=NULL,classatt=NULL,idcolumn=NULL,rulelearning_opt
   {
     classatt<-colnames(train)[ncol(train)]
   }
-  rules<-cba(train,classatt,rulelearning_options,pruning_options)
+  rm<-cba(train,classatt,rulelearning_options,pruning_options)
   if (!is.null(outpath))
   {
-    write.csv(as(rules@rules,"data.frame"), outpath, row.names=TRUE,quote = TRUE)
+    write.csv(as(rm@rules,"data.frame"), outpath, row.names=TRUE,quote = TRUE)
   }
+  return(rm)
 
 }
 #' Test workflow on iris dataset, learns a cba classifier on one "train set" part , and applies it to the second  "test set" part.
@@ -150,7 +180,7 @@ cbaCSV<- function(path,outpath=NULL,classatt=NULL,idcolumn=NULL,rulelearning_opt
 #'
 cbaIris<- function()
 {
-  data(iris)
+  #data(iris)
   classatt<-"Species"
   train<-iris[1:100,]
   test<-iris[101:length(iris),]
@@ -173,11 +203,8 @@ cbaIris<- function()
 #' @return Object of class \link{RuleModel}.
 #'
 #' @examples
-#' \code{
-#'   rulelearning_options <- list(target_rule_count=50000)
-#'   cba(iris,"Species",rulelearning_options)
+#'   cba(iris,"Species",rulelearning_options=list(target_rule_count=50000))
 #'   data(iris)
-#' }
 
 cba <- function(train,classatt,rulelearning_options=NULL,pruning_options=NULL){
 

@@ -9,18 +9,18 @@ applyCut(col, cuts, infinite_bounds, labels)
 \arguments{
 \item{col}{input vector with data.}
 
-\item{infinite_bounds}{a logical indicating how the bounds on the extremes should look like.
-If set to FALSE, the leftmost/rightmost intervals will be bounded by the minimum and maximum in the respective column.
-If set to TRUE, the leftmost/rightmost intervals will be bounded by negative and positive infinity.}
-
-\item{labels}{a logical indicating whether the bins of the discretized data should be represented by integer codes or as interval notation using (a;b] when set to TRUE.}
-
-\item{cuts1}{vector with cutpoints.
+\item{cuts}{vector with cutpoints.
 There are several special values defined:
 \itemize{
 \item NULL indicates that no discretization will be performed,
 \item All indicates all values will be merged into one.
 }}
+
+\item{infinite_bounds}{a logical indicating how the bounds on the extremes should look like.
+If set to FALSE, the leftmost/rightmost intervals will be bounded by the minimum and maximum in the respective column.
+If set to TRUE, the leftmost/rightmost intervals will be bounded by negative and positive infinity.}
+
+\item{labels}{a logical indicating whether the bins of the discretized data should be represented by integer codes or as interval notation using (a;b] when set to TRUE.}
 }
 \value{
 Vector with discretized data.
@@ -29,10 +29,7 @@ Vector with discretized data.
 Function that applies cut points on input column.
 }
 \examples{
-\\code{
   applyCut(iris[[1]],c(3,6),TRUE,TRUE)
-
-}
 }
 \seealso{
 \code{\link{applyCuts}}
