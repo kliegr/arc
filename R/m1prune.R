@@ -5,8 +5,8 @@ library(arules)
 library(R.utils)
 
 
-#'
-#' An implementation of the CBA-CB M1 algorithm adapted for R and arules package apriori implementation in place of CBA-RG.
+#' @title An implementation of the CBA-CB M1 algorithm
+#' @description  An implementation of the CBA-CB M1 algorithm adapted for R and arules package apriori implementation in place of CBA-RG.
 #'
 #' @param rules object of class rules from arules package
 #' @param txns input object with transactions.

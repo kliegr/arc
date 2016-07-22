@@ -2,7 +2,7 @@
 % Please edit documentation in R/rulemodels.R
 \name{cbaIris}
 \alias{cbaIris}
-\title{Test workflow on iris dataset, learns a cba classifier on one "train set" part , and applies it to the second  "test set" part.}
+\title{Test cba workflow on iris dataset.}
 \usage{
 cbaIris()
 }
@@ -10,6 +10,6 @@ cbaIris()
 Accuracy.
 }
 \description{
-Test workflow on iris dataset, learns a cba classifier on one "train set" part , and applies it to the second  "test set" part.
+Test workflow on iris dataset: learns a cba classifier on one "train set" part , and applies it to the second  "test set" part.
 }
 

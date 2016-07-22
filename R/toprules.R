@@ -3,7 +3,8 @@
 library(R.utils)
 
 
-#' A wrapper for the arules method from the apriori package that iteratively changes mining parameters until a desired number of rules is obtained, all options are exhausted or a preset time limit is reached.
+#' @title Mines predefined number of classification rules.
+#' @description  A wrapper for the arules method from the apriori package that iteratively changes mining parameters until a desired number of rules is obtained, all options are exhausted or a preset time limit is reached.
 #' Within the arc package, this function serves as a replacement for the CBA-RG algorithm (without pessimistic pruning) with general apriori implementation provided by existing fast R package \strong{arules}.
 #'
 #' @param txns input transactions

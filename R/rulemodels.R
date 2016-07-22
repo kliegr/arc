@@ -19,18 +19,6 @@ default_pruning_setup <- function()
 {
   return (list(default_rule_pruning=TRUE, rule_window=100))
 }
-#' Sample dataset
-#'
-#' A sample credit scoring dataset
-#'
-#'
-#' @docType data
-#' @keywords datasets
-#' @name KO_Bank_all
-#' @usage data(KO_Bank_all)
-#' @format A comma separated csv file
-NULL
-
 
 
 #' RuleModel
@@ -58,14 +46,18 @@ RuleModel <- setClass("RuleModel",
   )
 )
 
-#' method that matches rule model against test data
+
+setGeneric("ruleMatch", function(rule_model,test) {
+  standardGeneric("ruleMatch")
+})
+
+#' Method that matches rule model against test data
 #'
 #' @param rule_model a \link{RuleModel} class instance
 #' @param test a data frame with test data, the data frame may optionally contain the target class attribute - if it does, the method also computes and <i>prints</i> accuracy.
 #'
-#' @return factor with predictions for input instances
+#' @return A vector with predictions.
 #' @export
-#'
 #' @examples
 #'   #data(iris)
 #'   train<-iris[1:100,]
@@ -74,20 +66,6 @@ RuleModel <- setClass("RuleModel",
 #'   target_rule_count<-1000
 #'   rm<-cba(train,"Species",list(target_rule_count=target_rule_count))
 #'   ruleMatch(rm,test)
-#'
-#'
-setGeneric("ruleMatch", function(rule_model,test) {
-  standardGeneric("ruleMatch")
-})
-
-#' Title
-#'
-#' @param rule_model RuleModel.
-#' @param test data.frame.
-#'
-#' @return A vector with predictions.
-#' @export
-#'
 #' @seealso \link{cbaIris}
 setMethod("ruleMatch", signature(rule_model = "RuleModel", test = "data.frame"), function(rule_model,test) {
   # apply any discretization that was applied on train data also on test data
@@ -135,7 +113,8 @@ getItems <- function(df,classatt){
 }
 
 
-#' Example workflow that reads a data file from csv, learns a cba rule set and saves the resulting rule set back to csv.
+#' @title  Example cba workflow that reads a data file from csv.
+#' @description Learns a cba rule set and saves the resulting rule set back to csv.
 #'
 #' @param path path to csv file with data.
 #' @param outpath path to write the rule set to.
@@ -172,7 +151,8 @@ cbaCSV<- function(path,outpath=NULL,classatt=NULL,idcolumn=NULL,rulelearning_opt
   return(rm)
 
 }
-#' Test workflow on iris dataset, learns a cba classifier on one "train set" part , and applies it to the second  "test set" part.
+#' @title Test cba workflow on iris dataset.
+#' @description Test workflow on iris dataset: learns a cba classifier on one "train set" part , and applies it to the second  "test set" part.
 #'
 #' @return Accuracy.
 #' @export
@@ -192,8 +172,8 @@ cbaIris<- function()
   return (acc)
 }
 
-#' example workflow that reads a data file from csv, learns a cba rule set and saves the resulting rule set back to csv.
-#'
+#' @title Example CBA workflow.
+#' @description Learns a cba rule set from supplied dataframe.
 #' @export
 #' @param train a data frame with data.
 #' @param classatt the name of the class attribute.

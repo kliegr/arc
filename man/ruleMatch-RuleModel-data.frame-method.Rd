@@ -3,20 +3,29 @@
 \docType{methods}
 \name{ruleMatch,RuleModel,data.frame-method}
 \alias{ruleMatch,RuleModel,data.frame-method}
-\title{Title}
+\title{Method that matches rule model against test data}
 \usage{
 \S4method{ruleMatch}{RuleModel,data.frame}(rule_model, test)
 }
 \arguments{
-\item{rule_model}{RuleModel.}
+\item{rule_model}{a \link{RuleModel} class instance}
 
-\item{test}{data.frame.}
+\item{test}{a data frame with test data, the data frame may optionally contain the target class attribute - if it does, the method also computes and <i>prints</i> accuracy.}
 }
 \value{
 A vector with predictions.
 }
 \description{
-Title
+Method that matches rule model against test data
+}
+\examples{
+  #data(iris)
+  train<-iris[1:100,]
+  test<-iris[101:length(iris),]
+  #increase for more accurate results in longer time
+  target_rule_count<-1000
+  rm<-cba(train,"Species",list(target_rule_count=target_rule_count))
+  ruleMatch(rm,test)
 }
 \seealso{
 \link{cbaIris}

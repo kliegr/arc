@@ -2,7 +2,7 @@
 % Please edit documentation in R/rulemodels.R
 \name{cbaCSV}
 \alias{cbaCSV}
-\title{Example workflow that reads a data file from csv, learns a cba rule set and saves the resulting rule set back to csv.}
+\title{Example cba workflow that reads a data file from csv.}
 \usage{
 cbaCSV(path, outpath = NULL, classatt = NULL, idcolumn = NULL,
   rulelearning_options = NULL, pruning_options = NULL)
@@ -24,7 +24,7 @@ cbaCSV(path, outpath = NULL, classatt = NULL, idcolumn = NULL,
 Object of class \link{RuleModel}
 }
 \description{
-Example workflow that reads a data file from csv, learns a cba rule set and saves the resulting rule set back to csv.
+Learns a cba rule set and saves the resulting rule set back to csv.
 }
 \examples{
  # cbaCSV("KO_Bank_all.csv")

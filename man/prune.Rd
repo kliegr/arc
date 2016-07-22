@@ -2,7 +2,7 @@
 % Please edit documentation in R/m1prune.R
 \name{prune}
 \alias{prune}
-\title{An implementation of the CBA-CB M1 algorithm adapted for R and arules package apriori implementation in place of CBA-RG.}
+\title{An implementation of the CBA-CB M1 algorithm}
 \usage{
 prune(rules, txns, classitems, custom_alg_options = NULL, debug = FALSE)
 }
