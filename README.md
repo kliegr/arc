@@ -40,16 +40,20 @@ data(Adult)
 classitems <- c("income=small","income=large")
 rules <- apriori(Adult, parameter = list(supp = 0.05, conf = 0.5, target = "rules"), appearance=list(rhs=classitems, default="lhs"))
 # now we have 1266 rules
-rules <- prune(rules,Adult,classitems)
+pr_rules <- prune(rules,Adult,classitems)
 # only 174 after pruning
-```
-Pruning by default consists of two steps, data coverage pruning and default rule pruning, which replaces part of the rules surviving data coverage pruning with a new default rule (rule with empty LHS). Default rule pruning can be turned off:
-```R
-rules <- prune(rules,Adult,classitems, default_rule_pruning=FALSE)
-# produces 198 rules
 ```
 
 Additional reduction of the size of the rule set can be achieved by setting `greedy_pruning=TRUE`.
+```R
+pr_rules <- prune(rules,Adult,classitems, greedy_pruning=TRUE)
+# produces 141 rules
+```
+Pruning by default consists of two steps, data coverage pruning and default rule pruning, which replaces part of the rules surviving data coverage pruning with a new default rule (rule with empty LHS). Default rule pruning can be turned off:
+```R
+pr_rules <- prune(rules,Adult,classitems, default_rule_pruning=FALSE)
+# produces 198 rules
+```
 
 
 ### Mine predefined number of rules with apriori
