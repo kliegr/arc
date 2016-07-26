@@ -5,7 +5,7 @@
 \title{Classifier Builder}
 \usage{
 prune(rules, txns, classitems, default_rule_pruning = TRUE,
-  rule_window = 100, debug = FALSE)
+  rule_window = 100, greedy_pruning = FALSE, debug = FALSE)
 }
 \arguments{
 \item{rules}{object of class rules from arules package}
@@ -18,6 +18,8 @@ prune(rules, txns, classitems, default_rule_pruning = TRUE,
 If set to FALSE, default pruning is not performed i.e. all rules surviving data coverage pruning are kept. In either case, a default rule is added to the end of the classifier.}
 
 \item{rule_window}{the number of rules to precompute for CBA data coverage pruning. The default value can be adjusted to decrease runtime.}
+
+\item{greedy_pruning}{setting to TRUE activates early stopping condition: pruning will be stopped on first rule on which total error increases.}
 
 \item{debug}{output debug messages.}
 }
