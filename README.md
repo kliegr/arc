@@ -1,5 +1,6 @@
 #  Association Rule Classification (arc)
 
+[![Travis-CI Build Status](https://travis-ci.org/kliegr/arc.svg?branch=master)](https://travis-ci.org/kliegr/arc)
 
 This package for R implements the Classification based on Associations algorithm (CBA):
 
