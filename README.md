@@ -64,7 +64,7 @@ pr_rules <- prune(rules,Adult,classitems, default_rule_pruning=FALSE)
 
 
 ### Mine predefined number of rules with apriori
-The arules documentation gives the following example:
+The [arules documentation](https://cran.r-project.org/web/packages/arules/arules.pdf) gives the following example:
 ```R
 data("Adult")
 ## Mine association rules.
@@ -81,7 +81,6 @@ rules <- topRules(Adult, target_rule_count=100, init_support=0.5,init_conf=0.9, 
 summary(rules)
 ```
 This will return 100 rules. The mechanics behind are  iterative step-wise changes to the initial values of the provided thresholds. In this case, there will be nine iterations, the minimum confidence threshold will be lowered to 0.65 and the final rule set will be trimmed.
-
 
 ### Performance optimization
 #### Rule learning
