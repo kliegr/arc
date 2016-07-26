@@ -18,6 +18,11 @@ NOTES: * Requires the arules package for the rule generation step ** There are s
 - `prune` function can be used to reduce the size of a rule set learnt by the apriori function from the  arules package
 - `topRules` function can be used as a wrapper for apriori allowing to mine for a user specified number of rules.
 
+## Installation
+```R
+devtools::install_github("kliegr/arc")
+```
+
 ## Examples
 
 ### Complete classification workflow
