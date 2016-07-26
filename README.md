@@ -1,5 +1,5 @@
-# arc
-Association Rule Classification
+#  Association Rule Classification (arc)
+
 
 This package for R implements the Classification based on Associations algorithm (CBA):
 
@@ -49,7 +49,7 @@ rules <- prune(rules,Adult,classitems, default_rule_pruning=FALSE)
 # produces 198 rules
 ```
 
-### Mine Predefined Number of Rules with apriori
+### Mine predefined number of rules with apriori
 The arules documentation gives the following example:
 ```R
 data("Adult")
