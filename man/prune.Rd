@@ -28,6 +28,7 @@ Returns an object of class \link{rules}.
 An implementation of the CBA-CB M1 algorithm (Liu et al, 1998) adapted for R and arules package apriori implementation in place of CBA-RG.
 }
 \examples{
+ #Example 1
   #data(iris)
   txns <- as(discrNumeric(iris, "Species")$Disc.data,"transactions")
   appearance <- getAppearance(iris,"Species")
@@ -36,6 +37,15 @@ An implementation of the CBA-CB M1 algorithm (Liu et al, 1998) adapted for R and
   prune(rules,txns, appearance$rhs)
   inspect(rules)
 
+#Example 2
+ data(Adult)
+ classitems <- c("income=small","income=large")
+ rules <- apriori(Adult, parameter = list(supp = 0.05, conf = 0.5, target = "rules"), appearance=list(rhs=classitems, default="lhs"))
+ # produces 1266 rules
+ rules <- prune(rules,Adult,classitems)
+ # Rules after data coverage pruning: 198
+ # Performing default rule pruning.
+ # Final rule set size:  174
 }
 \references{
 Ma, Bing Liu Wynne Hsu Yiming. Integrating classification and association rule mining. Proceedings of the fourth international conference on knowledge discovery and data mining. 1998.

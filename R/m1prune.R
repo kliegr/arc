@@ -14,6 +14,7 @@ library(R.utils)
 #'   If set to FALSE, default pruning is not performed i.e. all rules surviving data coverage pruning are kept. In either case, a default rule is added to the end of the classifier.
 #' @param rule_window the number of rules to precompute for CBA data coverage pruning. The default value can be adjusted to decrease runtime.
 #' @param debug output debug messages.
+#' @param greedy_pruning setting to TRUE activates early stopping condition: pruning will be stopped on first rule on which total error increases.
 #'
 #' @return Returns an object of class \link{rules}.
 #' @export
@@ -39,8 +40,11 @@ library(R.utils)
 #'  # Final rule set size:  174
 
 
-prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_window=100,debug=FALSE){
-
+prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_window=100,greedy_pruning=FALSE,debug=FALSE){
+  if (!default_rule_pruning & greedy_pruning)
+  {
+    stop("When greedy_pruning is enabled, default_rule_pruning must be enabled too")
+  }
   # compute rule length
   tryCatch(
     {
@@ -80,7 +84,8 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
 
   total_errors <- c(0,rule_count)
   default_classes <- c(0,rule_count)
-  last_total_error <- 0
+  last_total_error_without_default <- 0
+  last_total_error_with_default <- Inf
 
 
   for(r in 1:rule_count)
@@ -96,11 +101,19 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
     # RT holds data precomputed for current window size
     if ((r-1)%%RULEWINDOW==0)
     {
-      ws <- (r %/% RULEWINDOW)*RULEWINDOW +1
-      we <- ws + RULEWINDOW-1
-      if (we >rule_count)
+      if (RULEWINDOW==1)
       {
-        we <- rule_count
+        ws <- r
+        we <- r
+      }
+      else
+      {
+        ws <- ((r %/% RULEWINDOW)*RULEWINDOW)+1
+        we <- ws + RULEWINDOW-1
+        if (we > rule_count)
+        {
+          we <- rule_count
+        }
       }
       # the result of matrix mutliplication is a matrix for which elemenent M[r,t] corresponds to how many items in rule r are matched by an item in transaction t
       # the conversion from ngCMatrix to dgCMatrix since the definition of matrix multiplication operations on ngCMatrix would mean different result than outlined above
@@ -119,12 +132,11 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
       # performance tip: now the RT.lhs and RT.rhs can be freed
     }
     # the index of currently processed rule r is recomputed to relate to current window
-    sr <- r-ws +1
+    sr <- r - ws +1
     if (debug) message(paste("processing rule ",r, " sr = ", sr))
 
     # cur_rule holds data for current rule r
-    cur_rule.matches_lhs <- RT.matches_lhs[sr,,drop = FALSE]
-    stop()
+    cur_rule.matches_lhs <- RT.matches_lhs[sr,]
     if (TRUE %in% cur_rule.matches_lhs)
     {
       if (debug) message(paste("Antecedent of rule ",r, " matches at least 1 transaction"))
@@ -141,9 +153,9 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
         # drop=FALSE ensures that when txns is subset so that it contains only one transaction the result is not converted to a vector, which would result into an error during assignment
         txns@data <- txns@data[,!cur_rule.matches_lhs,drop = FALSE]
         # total errors are computed and set only for rules which will not be pruned
-        total_errors[r] <- last_total_error+sum(cur_rule.matches_lhs-R.matches_lhs_and_rhs)
+        total_errors[r] <- last_total_error_without_default+sum(cur_rule.matches_lhs-R.matches_lhs_and_rhs)
         # last_total_error should exclude default rule error, which is added to total_errors[r] later
-        last_total_error <- total_errors[r]
+        last_total_error_without_default <- total_errors[r]
 
         #check if there are any more transactions to process
         if (ncol(txns@data)==0)
@@ -163,7 +175,21 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
           default_err_count <- length(txns) - majority_class_tran_count
           total_errors[r] <- total_errors[r]+default_err_count
           default_classes[r] <- default_class
+
+          if (greedy_pruning)
+          {
+            if (last_total_error_with_default<total_errors[r])
+            {
+              if (debug) message(paste("Total error including default increasde on rule  ",r))
+              rules_to_remove <- c(rules_to_remove,r+1:rule_count)
+              break;
+            }
+            last_total_error_with_default <- total_errors[r]
+          }
+
         }
+
+
       }
       else
       {
