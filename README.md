@@ -6,6 +6,7 @@ This package for R implements the Classification based on Associations algorithm
 
  ```Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Association Rule Mining. Proceedings KDD-98, New York, 27-31 August. AAAI. pp 80-86.```
 
+The [arules](https://github.com/mhahsler/arules/) package is used for the rule generation step.
 
 ## Features 
 - Pure R implementation* 
