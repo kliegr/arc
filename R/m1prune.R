@@ -19,6 +19,7 @@ library(R.utils)
 #' @export
 #' @seealso \code{\link{topRules}}
 #' @examples
+#'  #Example 1
 #'   #data(iris)
 #'   txns <- as(discrNumeric(iris, "Species")$Disc.data,"transactions")
 #'   appearance <- getAppearance(iris,"Species")
@@ -27,9 +28,19 @@ library(R.utils)
 #'   prune(rules,txns, appearance$rhs)
 #'   inspect(rules)
 #'
+#' #Example 2
+#'  data(Adult)
+#'  classitems <- c("income=small","income=large")
+#'  rules <- apriori(Adult, parameter = list(supp = 0.05, conf = 0.5, target = "rules"), appearance=list(rhs=classitems, default="lhs"))
+#'  # produces 1266 rules
+#'  rules <- prune(rules,Adult,classitems)
+#'  # Rules after data coverage pruning: 198
+#'  # Performing default rule pruning.
+#'  # Final rule set size:  174
 
 
 prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_window=100,debug=FALSE){
+
   # compute rule length
   tryCatch(
     {
@@ -67,12 +78,12 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
     RULEWINDOW <- rule_count
   }
 
-  total_errors <- c(0,length(rules))
-  default_classes <- c(0,length(rules))
+  total_errors <- c(0,rule_count)
+  default_classes <- c(0,rule_count)
   last_total_error <- 0
 
 
-  for(r in 1:length(rules))
+  for(r in 1:rule_count)
   {
     # the purpose of using rule windows is following:
     # bulk operations on multiple rules at a time may be cheaper than many iterative multiplications of single rule vectors with all transactions
@@ -82,16 +93,19 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
     ## in some cases, all transactions can be covered by first N rules, remaining rules thus may not need to be processed at all
     ## as the pruning proceeds through the rule set, the number of remaining transactions decreases, which makes subsequent multiplications cheaper
 
-
     # RT holds data precomputed for current window size
     if ((r-1)%%RULEWINDOW==0)
     {
       ws <- (r %/% RULEWINDOW)*RULEWINDOW +1
       we <- ws + RULEWINDOW-1
+      if (we >rule_count)
+      {
+        we <- rule_count
+      }
       # the result of matrix mutliplication is a matrix for which elemenent M[r,t] corresponds to how many items in rule r are matched by an item in transaction t
       # the conversion from ngCMatrix to dgCMatrix since the definition of matrix multiplication operations on ngCMatrix would mean different result than outlined above
-
       RT.lhs <- t(as(rules@lhs@data[,ws:we,drop = FALSE],"dgCMatrix")) %*% as(txns@data,"dgCMatrix")
+
       # this operation would also work without the subsetting by classitemspositions
       # now do the same thing for rhs
       # Performance tip: ngCMatrix can be cast to dgCMatrix just once, outside the loop for the entire matrix
@@ -99,9 +113,9 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
         "dgCMatrix")) %*% as(txns@data[classitemspositions,,drop = FALSE],"dgCMatrix")
 
       # thus the rule r's lhs matches the transaction t iff M[r,t] == number of items in t is the same as number of items in lhs of  rule r,
-      RT.matches_lhs <- (rules[ws:we]@quality$lhs_length==RT.lhs)
+      RT.matches_lhs <- (rules[ws:we,drop = FALSE]@quality$lhs_length==RT.lhs)
       # the rule r correctly covers the transaction t if the number of items in t matched by the LHS and RHS equals the length of the LHS plus 1 (RHS must always have length 1)
-      RT.matches_lhs_and_rhs <- (rules[ws:we]@quality$lhs_length+1==RT.lhs+RT.rhs)
+      RT.matches_lhs_and_rhs <- (rules[ws:we,drop = FALSE]@quality$lhs_length+1==RT.lhs+RT.rhs)
       # performance tip: now the RT.lhs and RT.rhs can be freed
     }
     # the index of currently processed rule r is recomputed to relate to current window
@@ -109,7 +123,8 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
     if (debug) message(paste("processing rule ",r, " sr = ", sr))
 
     # cur_rule holds data for current rule r
-    cur_rule.matches_lhs <- RT.matches_lhs[sr,]
+    cur_rule.matches_lhs <- RT.matches_lhs[sr,,drop = FALSE]
+    stop()
     if (TRUE %in% cur_rule.matches_lhs)
     {
       if (debug) message(paste("Antecedent of rule ",r, " matches at least 1 transaction"))
@@ -175,30 +190,30 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
     last_rule_pos <- which.min(total_errors)
     # keep only the top rules until "last rule"(inclusive)
     rules <- rules[1:last_rule_pos]
+    # add default rule to the end
+    ## the lhs of the default rule hasno items (all item positions to 0 in the item matrix)
+    rules@lhs@data <- cbind(rules@lhs@data, as(matrix(0, distinct_items,1),"ngCMatrix"))
+
+    # now prepare the rhs of the default rule
+    # first prepare empty vector
+    default_rhs <- as(matrix(0, distinct_items,1),"ngCMatrix")
+    # the class associated with the default rule is the class that has been precomputed as part of evaluation of the "last rule"
+    default_rhs[classitemspositions[default_classes[last_rule_pos]]] <- TRUE
+    # finally append the default rule rhs to the rules rhs  matrix
+    rules@rhs@data <- cbind(rules@rhs@data, default_rhs)
+    # compute the support and confidence (will be the same) of the default rule
+    default_rule_support_confidence <- alldata_classfrequencies[default_classes[last_rule_pos]]/orig_transaction_count
+    # append the result
+    rules@quality <- rbind(rules@quality,c(default_rule_support_confidence,default_rule_support_confidence,1,0))
+    # set row name on the newly added default rule to "0"
+    #  so that it does not clash with any of the row names of the original rule set
+    row.names(rules@quality)[nrow(rules@quality)] <- 0
 
   }
   else{
     # in case there is no default rule pruning, the "last rule" is actually the last rule among those surviving data coverage pruning
     last_rule_pos <- length(rules)
   }
-  # add default rule to the end
-  ## the lhs of the default rule hasno items (all item positions to 0 in the item matrix)
-  rules@lhs@data <- cbind(rules@lhs@data, as(matrix(0, distinct_items,1),"ngCMatrix"))
-
-  # now prepare the rhs of the default rule
-  # first prepare empty vector
-  default_rhs <- as(matrix(0, distinct_items,1),"ngCMatrix")
-  # the class associated with the default rule is the class that has been precomputed as part of evaluation of the "last rule"
-  default_rhs[classitemspositions[default_classes[last_rule_pos]]] <- TRUE
-  # finally append the default rule rhs to the rules rhs  matrix
-  rules@rhs@data <- cbind(rules@rhs@data, default_rhs)
-  # compute the support and confidence (will be the same) of the default rule
-  default_rule_support_confidence <- alldata_classfrequencies[default_classes[last_rule_pos]]/orig_transaction_count
-  # append the result
-  rules@quality <- rbind(rules@quality,c(default_rule_support_confidence,default_rule_support_confidence,1,0))
-  # set row name on the newly added default rule to "0"
-  #  so that it does not clash with any of the row names of the original rule set
-  row.names(rules@quality)[nrow(rules@quality)] <- 0
 
   message(paste("Final rule set size: ",length(rules)))
   return(rules)

@@ -4,10 +4,10 @@
 \alias{topRules}
 \title{Rule Generation}
 \usage{
-topRules(txns, appearance, target_rule_count = 1000, init_support = 0,
-  init_conf = 0.5, conf_step = 0.05, supp_step = 0.05, minlen = 2,
-  init_maxlen = 3, iteration_timeout = 2, total_timeout = 100,
-  max_iterations = 30, debug = FALSE)
+topRules(txns, appearance = list(), target_rule_count = 1000,
+  init_support = 0, init_conf = 0.5, conf_step = 0.05, supp_step = 0.05,
+  minlen = 2, init_maxlen = 3, iteration_timeout = 2,
+  total_timeout = 100, max_iterations = 30, trim = TRUE, debug = FALSE)
 }
 \arguments{
 \item{txns}{input transactions.}
@@ -34,6 +34,8 @@ topRules(txns, appearance, target_rule_count = 1000, init_support = 0,
 
 \item{max_iterations}{maximum number of iterations.}
 
+\item{trim}{if set to TRUE and more than \code{target_rule_count} is discovered, only first \code{target_rule_count} rules will be returned.}
+
 \item{debug}{boolean indicating whether to output debug messages.}
 }
 \value{
@@ -44,9 +46,17 @@ A wrapper for the arules method from the apriori package that iteratively change
 Within the arc package, this function serves as a replacement for the CBA Rule Generation algorithm (Liu et al, 1998) -- without pessimistic pruning -- with general apriori implementation provided by existing fast R package \strong{arules}.
 }
 \examples{
-  topRules(as(discrNumeric(iris, "Species")$Disc.data,"transactions"),
+# Example 1
+ data(Adult)
+ rules <- topRules(Adult, appearance = list(), target_rule_count = 100, init_support = 0.5,init_conf = 0.9, minlen = 1, init_maxlen = 10)
+
+# Example 2
+  # data(iris)
+  rules <- topRules(as(discrNumeric(iris, "Species")$Disc.data,"transactions"),
    getAppearance(iris,"Species"))
 
+# Example 3
+  # data(iris)
   appearance <- list(rhs =  c("Species=setosa", "Species=versicolor",
    "Species=virginica"), default="lhs")
   data <- sapply(iris,as.factor)

@@ -20,15 +20,24 @@ library(R.utils)
 #' @param iteration_timeout maximum number of seconds it should take apriori to obtain rules with current configuration/
 #' @param total_timeout maximum number of seconds the mining should take.
 #' @param max_iterations maximum number of iterations.
+#' @param trim if set to TRUE and more than \code{target_rule_count} is discovered, only first \code{target_rule_count} rules will be returned.
 #' @param debug boolean indicating whether to output debug messages.
 #'
 #' @return Returns an object of class rules.
 #' @export
 #' @seealso \code{\link{prune}}
 #' @examples
-#'   topRules(as(discrNumeric(iris, "Species")$Disc.data,"transactions"),
+#' # Example 1
+#'  data(Adult)
+#'  rules <- topRules(Adult, appearance = list(), target_rule_count = 100, init_support = 0.5,init_conf = 0.9, minlen = 1, init_maxlen = 10)
+#'
+#' # Example 2
+#'   # data(iris)
+#'   rules <- topRules(as(discrNumeric(iris, "Species")$Disc.data,"transactions"),
 #'    getAppearance(iris,"Species"))
 #'
+#' # Example 3
+#'   # data(iris)
 #'   appearance <- list(rhs =  c("Species=setosa", "Species=versicolor",
 #'    "Species=virginica"), default="lhs")
 #'   data <- sapply(iris,as.factor)
@@ -37,15 +46,11 @@ library(R.utils)
 #'   rules <- topRules(txns, appearance)
 #'
 
-topRules <- function(txns, appearance, target_rule_count = 1000, init_support = 0.00, init_conf = 0.5, conf_step = 0.05,
+topRules <- function(txns, appearance=list(), target_rule_count = 1000, init_support = 0.00, init_conf = 0.5, conf_step = 0.05,
                      supp_step = 0.05, minlen = 2, init_maxlen = 3, iteration_timeout = 2, total_timeout = 100.0,
-                     max_iterations = 30, debug = FALSE)
+                     max_iterations = 30, trim=TRUE, debug = FALSE)
 {
   starttime <- proc.time()
-  if (missing(appearance))
-  {
-    stop("appearance cannot be null")
-  }
   if (missing(txns))
   {
     stop("txns cannot be null")
@@ -80,7 +85,7 @@ topRules <- function(txns, appearance, target_rule_count = 1000, init_support = 
                   appearance = appearance, control = list(verbose=FALSE)));},
                  timeout = iteration_timeout, onTimeout="error");
                 rulecount <- length(rules)
-        message(paste("Rule count:  ",rulecount))
+        message(paste("Rule count: ",rulecount, " Iteration: ",iterations))
         if (rulecount >= target_rule_count)
         {
           flag <- FALSE
@@ -172,7 +177,7 @@ topRules <- function(txns, appearance, target_rule_count = 1000, init_support = 
     return(NULL)
   }
 
-  if(length(rules) > target_rule_count)
+  if(trim & length(rules) > target_rule_count)
   {
     message("Removing excess discovered rules")
     #TODO rules are removed using the order in which they appear in the rules object
