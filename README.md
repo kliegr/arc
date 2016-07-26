@@ -33,4 +33,31 @@ acc <- rulemodelAccuracy(prediction, test[[classatt]])
 print(acc)
 ```
 
-### Reduce size of a rule set
+### Mine Predefined Number of Rules with apriori
+The arules documentation gives the following example:
+```R
+data("Adult")
+## Mine association rules.
+rules <- apriori(Adult,
+parameter = list(supp = 0.5, conf = 0.9, target = "rules"))
+summary(rules)
+```
+This returns 52 rules. The default value for the minlen and maxlen parameters unspecified by the user was 1 and 10. 
+Assuming that the user wishes to obtain 100 rules, this can be achieved with the arc package as follows:
+
+```R
+data("Adult")
+rules <- topRules(Adult, target_rule_count=100, init_support=0.5,init_conf=0.9, minlen=1, init_maxlen = 10)
+summary(rules)
+```
+This will return 100 rules. The mechanics behind are  iterative step-wise changes to the initial values of the provided thresholds. In this case, there will be nine iterations, the minimum confidence threshold will be lowered to 0.65 and the final rule set will be trimmed.
+
+In order to keep the number of iterations and thus run time low, it might be a good idea to set the `init_maxlen` parameter to a low value:
+```R
+data("Adult")
+rules <- topRules(Adult, target_rule_count = 100, init_support = 0.5,init_conf = 0.9, minlen = 1, init_maxlen = 2)
+summary(rules)
+```
+In this case, the algorithm finished after 11 iterations. However, in my experience, lower initial value is a safer bet.
+
+
