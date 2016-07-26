@@ -2,7 +2,7 @@
 % Please edit documentation in R/mdlp2.R
 \name{mdlp2}
 \alias{mdlp2}
-\title{Performs supervised discretization.}
+\title{Supervised Discretization}
 \usage{
 mdlp2(df, cl_index = NULL, handle_missing = FALSE, labels = FALSE,
   skip_nonnumeric = FALSE, infinite_bounds = FALSE,
@@ -28,13 +28,16 @@ the input for discretization is a subset of data containing this column and targ
 Discretized data. If there were any non-numeric input columns they are returned as is. All returned columns except class are factors.
 }
 \description{
-Performs supervised discretization.
+Performs supervised discretization of numeric columns, except class, on the provided data frame. Uses the Minimum Description Length Principle algorithm (Fayyed and Irani, 1993) as implemented in the discretization package.
 }
 \examples{
   mdlp2(iris) #gives the same result as mdlp(iris) from discretize package
   #uses Sepal.Length as target variable
-  mdlp2(df=iris,cl_index=1,handle_missing=TRUE,labels=TRUE,
-  skip_nonnumeric=TRUE,infinite_bounds=TRUE,min_distinct_values=30)
+  mdlp2(df=iris, cl_index = 1,handle_missing = TRUE, labels = TRUE,
+  skip_nonnumeric = TRUE, infinite_bounds = TRUE, min_distinct_values = 30)
 
+}
+\references{
+Fayyad, U. M. and Irani, K. B. (1993). Multi-interval discretization of continuous-valued attributes for classification learning, Artificial intelligence 13, 1022–1027
 }
 

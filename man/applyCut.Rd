@@ -2,7 +2,7 @@
 % Please edit documentation in R/mdlp2.R
 \name{applyCut}
 \alias{applyCut}
-\title{Function that applies cut points on input column.}
+\title{Apply Cut Points to Vector}
 \usage{
 applyCut(col, cuts, infinite_bounds, labels)
 }
@@ -11,14 +11,12 @@ applyCut(col, cuts, infinite_bounds, labels)
 
 \item{cuts}{vector with cutpoints.
 There are several special values defined:
-\itemize{
-\item NULL indicates that no discretization will be performed,
-\item All indicates all values will be merged into one.
-}}
+\code{"NULL"} indicates that no discretization will be performed,
+ \code{"All"} indicates all values will be merged into one.}
 
 \item{infinite_bounds}{a logical indicating how the bounds on the extremes should look like.
-If set to FALSE, the leftmost/rightmost intervals will be bounded by the minimum and maximum in the respective column.
-If set to TRUE, the leftmost/rightmost intervals will be bounded by negative and positive infinity.}
+If set to \code{FALSE}, the leftmost/rightmost intervals will be bounded by the minimum and maximum in the respective column.
+If set to \code{TRUE}, the leftmost/rightmost intervals will be bounded by negative and positive infinity.}
 
 \item{labels}{a logical indicating whether the bins of the discretized data should be represented by integer codes or as interval notation using (a;b] when set to TRUE.}
 }
@@ -26,10 +24,10 @@ If set to TRUE, the leftmost/rightmost intervals will be bounded by negative and
 Vector with discretized data.
 }
 \description{
-Function that applies cut points on input column.
+Applies cut points to vector.
 }
 \examples{
-  applyCut(iris[[1]],c(3,6),TRUE,TRUE)
+  applyCut(iris[[1]], c(3,6), TRUE, TRUE)
 }
 \seealso{
 \code{\link{applyCuts}}

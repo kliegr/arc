@@ -2,7 +2,7 @@
 % Please edit documentation in R/mdlp2.R
 \name{discrNumeric}
 \alias{discrNumeric}
-\title{Method that matches rule model against test data.}
+\title{Discretize Numeric Columns In Data frame}
 \usage{
 discrNumeric(df, classatt, min_distinct_values = 3, unsupervised_bins = 3,
   discretize_class = FALSE)
@@ -14,19 +14,22 @@ discrNumeric(df, classatt, min_distinct_values = 3, unsupervised_bins = 3,
 
 \item{min_distinct_values}{the minimum number of unique values a column needs to have to be subject to supervised discretization.}
 
-\item{unsupervised_bins}{number of target bins for  discretizing the class attribute. Ignored when the class attribute is not numeric or when discretize_class is set to FALSE.}
+\item{unsupervised_bins}{number of target bins for  discretizing the class attribute. Ignored when the class attribute is not numeric or when \code{discretize_class} is set to FALSE.}
 
 \item{discretize_class}{logical value indicating whether the class attribute should be discretized. Ignored when the class attribute is not numeric.}
 }
 \value{
-list with two slots: $cutp with cutpoints and $Disc.data with discretization results
+list with two slots: \code{$cutp} with cutpoints and \code{$Disc.data} with discretization results
 }
 \description{
-Method that matches rule model against test data.
+Can discretize both predictor columns in  data frame -- using supervised algorithm MDLP (Fayyad & Irani, 1993) -- and the target class -- using unsupervised algorithm (k-Means).
 }
 \examples{
   #data(iris)
-  discrNumeric(iris,"Species")
+  discrNumeric(iris, "Species")
 
+}
+\references{
+Fayyad, U. M. and Irani, K. B. (1993). Multi-interval discretization of continuous-valued attributes for classification learning, Artificial intelligence 13, 1022–1027
 }
 

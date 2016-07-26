@@ -2,7 +2,7 @@
 % Please edit documentation in R/mdlp2.R
 \name{discretizeUnsupervised}
 \alias{discretizeUnsupervised}
-\title{Performs unsupervised discretization.}
+\title{Unsupervised Discretization}
 \usage{
 discretizeUnsupervised(data, labels = FALSE, infinite_bounds = FALSE,
   categories = 3)
@@ -20,7 +20,7 @@ discretizeUnsupervised(data, labels = FALSE, infinite_bounds = FALSE,
 Discretized data. If there was no discretization specified for some columns, these are returned as is.
 }
 \description{
-Performs unsupervised discretization.
+Discretizes provided numeric vector using unsupervised algorithm (k-Means).
 }
 \examples{
   discretizeUnsupervised(iris[[1]])

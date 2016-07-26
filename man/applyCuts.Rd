@@ -2,16 +2,16 @@
 % Please edit documentation in R/mdlp2.R
 \name{applyCuts}
 \alias{applyCuts}
-\title{Function that applies cut points on input data.}
+\title{Apply Cut Points to Data Frame}
 \usage{
 applyCuts(df, cutp, infinite_bounds, labels)
 }
 \arguments{
 \item{df}{input data frame.}
 
-\item{cutp}{a list of vectors with cutpoints @seealso \code{\link{applyCut}}.}
+\item{cutp}{a list of vectors with cutpoints (for more information see \code{\link{applyCut}}).}
 
-\item{infinite_bounds}{a logical indicating how the bounds on the extremes should look like.}
+\item{infinite_bounds}{a logical indicating how the bounds on the extremes should look like (for more information see \code{\link{applyCut}})}
 
 \item{labels}{a logical indicating whether the bins of the discretized data should be represented by integer codes or as interval notation using (a;b] when set to TRUE.}
 }
@@ -19,11 +19,11 @@ applyCuts(df, cutp, infinite_bounds, labels)
 discretized data. If there was no discretization specified for some columns, these are returned as is.
 }
 \description{
-Function that applies cut points on input data.
+Applies cut points to input data frame.
 }
 \examples{
-  applyCuts(iris,list(c(5,6),c(2,3),"All","NULL","NULL"),TRUE,TRUE)
-  
+  applyCuts(iris, list(c(5,6), c(2,3), "All", "NULL", "NULL"), TRUE, TRUE)
+
 }
 \seealso{
 {applyCut}

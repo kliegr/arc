@@ -2,9 +2,10 @@
 % Please edit documentation in R/m1prune.R
 \name{prune}
 \alias{prune}
-\title{An implementation of the CBA-CB M1 algorithm}
+\title{Classifier Builder}
 \usage{
-prune(rules, txns, classitems, custom_alg_options = NULL, debug = FALSE)
+prune(rules, txns, classitems, default_rule_pruning = TRUE,
+  rule_window = 100, debug = FALSE)
 }
 \arguments{
 \item{rules}{object of class rules from arules package}
@@ -13,12 +14,10 @@ prune(rules, txns, classitems, custom_alg_options = NULL, debug = FALSE)
 
 \item{classitems}{a list of items to appear in the consequent (rhs) of the rules.}
 
-\item{custom_alg_options}{a list of custom options, any options specified will override those defined by the DEFAULT_RULE_LEARNING_SETUP variable. These options are
-\itemize{
- \item \strong{default_rule_pruning}: boolean indicating whether default pruning should be performed. If set to TRUE, default pruning is performed as in the CBA algorithm.
- If set to FALSE, default pruning is not performed i.e. all rules surviving data coverage pruning are kept. In either case, a default rule is added to the end of the classifier.
- \item \strong{rule_window}: the number of rules to precompute for CBA data coverage pruning. The default value can be adjusted to decrease runtime.
- }}
+\item{default_rule_pruning}{boolean indicating whether default pruning should be performed. If set to TRUE, default pruning is performed as in the CBA algorithm.
+If set to FALSE, default pruning is not performed i.e. all rules surviving data coverage pruning are kept. In either case, a default rule is added to the end of the classifier.}
+
+\item{rule_window}{the number of rules to precompute for CBA data coverage pruning. The default value can be adjusted to decrease runtime.}
 
 \item{debug}{output debug messages.}
 }
@@ -26,16 +25,20 @@ prune(rules, txns, classitems, custom_alg_options = NULL, debug = FALSE)
 Returns an object of class \link{rules}.
 }
 \description{
-An implementation of the CBA-CB M1 algorithm adapted for R and arules package apriori implementation in place of CBA-RG.
+An implementation of the CBA-CB M1 algorithm (Liu et al, 1998) adapted for R and arules package apriori implementation in place of CBA-RG.
 }
 \examples{
   #data(iris)
   txns <- as(discrNumeric(iris, "Species")$Disc.data,"transactions")
-  classitems <- getItems(iris,"Species")
+  appearance <- getAppearance(iris,"Species")
   rules <- apriori(txns, parameter = list(confidence = 0.5,
-  support= 0.01, minlen= 2, maxlen= 4),appearance = list(rhs = classitems,default="lhs"))
-  prune(rules,txns, classitems)
+  support= 0.01, minlen= 2, maxlen= 4),appearance = appearance)
+  prune(rules,txns, appearance$rhs)
   inspect(rules)
+
+}
+\references{
+Ma, Bing Liu Wynne Hsu Yiming. Integrating classification and association rule mining. Proceedings of the fourth international conference on knowledge discovery and data mining. 1998.
 }
 \seealso{
 \code{\link{topRules}}
