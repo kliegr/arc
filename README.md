@@ -49,6 +49,9 @@ rules <- prune(rules,Adult,classitems, default_rule_pruning=FALSE)
 # produces 198 rules
 ```
 
+Additional reduction of the size of the rule set can be achieved by setting `greedy_pruning=TRUE`.
+
+
 ### Mine predefined number of rules with apriori
 The arules documentation gives the following example:
 ```R
@@ -68,12 +71,16 @@ summary(rules)
 ```
 This will return 100 rules. The mechanics behind are  iterative step-wise changes to the initial values of the provided thresholds. In this case, there will be nine iterations, the minimum confidence threshold will be lowered to 0.65 and the final rule set will be trimmed.
 
-In order to keep the number of iterations and thus run time low, it might be a good idea to set the `init_maxlen` parameter to a low value:
+
+### Performance optimization
+#### Rule learning
+* In order to keep the number of iterations and thus run time low, it might be a good idea to set the `init_maxlen` parameter to a low value:
 ```R
 data("Adult")
 rules <- topRules(Adult, target_rule_count = 100, init_support = 0.5,init_conf = 0.9, minlen = 1, init_maxlen = 2)
 summary(rules)
 ```
-In this case, the algorithm finished after 11 iterations. However, in my experience, lower initial value is a safer bet.
-
+#### Rule pruning
+* Experiment with the value of the `rule_window` parameter. This has no effect on the quality of the classifier. 
+* Set `greedy_pruning` to TRUE. This will have generally adverse impact on the quality of the classifier, but it will decrease the size of the rule set and reduce the time required for pruning. Greedy pruning is not part of the CBA algorithm as published by Liu et al. 
 
