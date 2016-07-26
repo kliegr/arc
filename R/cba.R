@@ -25,9 +25,10 @@ RuleModel <- setClass("RuleModel",
 #'
 #' @param object a \link{RuleModel} class instance
 #' @param newdata a data frame with data
-#'
+#' @param ... other arguments (currently not used)
 #' @return A vector with predictions.
 #' @export
+#' @method predict RuleModel
 #' @examples
 #'   #data(iris)
 #'   train <- iris[1:100,]
@@ -40,7 +41,8 @@ RuleModel <- setClass("RuleModel",
 #'   acc <- rulemodelAccuracy(prediction, test[[classatt]])
 #'   message(acc)
 #' @seealso \link{cbaIris}
-predict.RuleModel <- function(object, newdata) {
+#'
+predict.RuleModel <- function(object, newdata,...) {
   rule_model <- object
   # apply any discretization that was applied on train data also on test data
   test_txns <- as(applyCuts(newdata, rule_model@cutp, infinite_bounds=TRUE, labels=TRUE), "transactions")

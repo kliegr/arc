@@ -4,12 +4,14 @@
 \alias{predict.RuleModel}
 \title{Apply Rule Model}
 \usage{
-predict.RuleModel(object, newdata)
+\method{predict}{RuleModel}(object, newdata, ...)
 }
 \arguments{
 \item{object}{a \link{RuleModel} class instance}
 
 \item{newdata}{a data frame with data}
+
+\item{...}{other arguments (currently not used)}
 }
 \value{
 A vector with predictions.
