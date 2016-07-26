@@ -10,7 +10,8 @@ The [arules](https://github.com/mhahsler/arules/) package is used for the rule g
 
 ## Features 
 - Pure R implementation* 
-- Supports numerical attributes
+- Supports numerical predictor attributes (via parameter-free supervised  discretization)
+- Supports numerical target attribute (k-means)
 - No meta parameters with automatic tuning of support and confidence thresholds (optional)**
 
 NOTES: * Requires the arules package for the rule generation step ** There are some metaparameters for automatic tuning, but in most cases the default values are OK.
