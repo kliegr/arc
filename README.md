@@ -54,12 +54,12 @@ pr_rules <- prune(rules,Adult,classitems)
 
 Additional reduction of the size of the rule set can be achieved by setting `greedy_pruning=TRUE`.
 ```R
-pr_rules <- prune(rules,Adult,classitems, greedy_pruning=TRUE)
+pr_rules <- prune(rules, Adult, classitems, greedy_pruning=TRUE)
 # produces 141 rules
 ```
 Pruning by default consists of two steps, data coverage pruning and default rule pruning, which replaces part of the rules surviving data coverage pruning with a new default rule (rule with empty LHS). Default rule pruning can be turned off:
 ```R
-pr_rules <- prune(rules,Adult,classitems, default_rule_pruning=FALSE)
+pr_rules <- prune(rules, Adult, classitems, default_rule_pruning = FALSE)
 # produces 198 rules
 ```
 
@@ -69,8 +69,7 @@ The [arules documentation](https://cran.r-project.org/web/packages/arules/arules
 ```R
 data("Adult")
 ## Mine association rules.
-rules <- apriori(Adult,
-parameter = list(supp = 0.5, conf = 0.9, target = "rules"))
+rules <- apriori(Adult, parameter = list(supp = 0.5, conf = 0.9, target = "rules"))
 summary(rules)
 ```
 This returns 52 rules. The default value for the minlen and maxlen parameters unspecified by the user was 1 and 10. 
@@ -78,7 +77,7 @@ Assuming that the user wishes to obtain 100 rules, this can be achieved with the
 
 ```R
 data("Adult")
-rules <- topRules(Adult, target_rule_count=100, init_support=0.5,init_conf=0.9, minlen=1, init_maxlen = 10)
+rules <- topRules(Adult, target_rule_count = 100, init_support = 0.5, init_conf = 0.9, minlen = 1, init_maxlen = 10)
 summary(rules)
 ```
 This will return 100 rules. The mechanics behind are  iterative step-wise changes to the initial values of the provided thresholds. In this case, there will be nine iterations, the minimum confidence threshold will be lowered to 0.65 and the final rule set will be trimmed.
@@ -88,7 +87,7 @@ This will return 100 rules. The mechanics behind are  iterative step-wise change
 * In order to keep the number of iterations and thus run time low, it might be a good idea to set the `init_maxlen` parameter to a low value:
 ```R
 data("Adult")
-rules <- topRules(Adult, target_rule_count = 100, init_support = 0.5,init_conf = 0.9, minlen = 1, init_maxlen = 2)
+rules <- topRules(Adult, target_rule_count = 100, init_support = 0.5, init_conf = 0.9, minlen = 1, init_maxlen = 2)
 summary(rules)
 ```
 #### Rule pruning
