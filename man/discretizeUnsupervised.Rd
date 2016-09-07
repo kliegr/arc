@@ -23,6 +23,7 @@ Discretized data. If there was no discretization specified for some columns, the
 Discretizes provided numeric vector using unsupervised algorithm (k-Means).
 }
 \examples{
+  utils::data(iris)
   discretizeUnsupervised(iris[[1]])
 
 }

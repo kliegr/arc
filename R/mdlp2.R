@@ -1,3 +1,5 @@
+#' @importFrom utils data
+#' @importFrom stats na.omit
 #' @import discretization
 library(discretization)
 
@@ -13,7 +15,7 @@ library(discretization)
 #' @return list with two slots: \code{$cutp} with cutpoints and \code{$Disc.data} with discretization results
 #'
 #' @examples
-#'   #data(iris)
+#'   utils::data(iris)
 #'   discrNumeric(iris, "Species")
 #'
 #' @export
@@ -51,6 +53,7 @@ discrNumeric <- function(df, classatt, min_distinct_values = 3, unsupervised_bin
 #' @export
 #'
 #' @examples
+#'   utils::data(iris)
 #'   applyCuts(iris, list(c(5,6), c(2,3), "All", "NULL", "NULL"), TRUE, TRUE)
 #'
 #' @seealso{applyCut}
@@ -84,6 +87,7 @@ applyCuts <-function(df,cutp,infinite_bounds,labels)
 #' @export
 #'
 #' @examples
+#'   utils::data(iris)
 #'   applyCut(iris[[1]], c(3,6), TRUE, TRUE)
 #' @seealso \code{\link{applyCuts}}
 #'
@@ -137,6 +141,7 @@ applyCut <- function(col, cuts, infinite_bounds, labels)
 #' @export
 #'
 #' @examples
+#'   utils::data(iris)
 #'   discretizeUnsupervised(iris[[1]])
 #'
 
@@ -176,6 +181,7 @@ discretizeUnsupervised <- function(data, labels=FALSE, infinite_bounds=FALSE,cat
 #' @export
 #'
 #' @examples
+#'   utils::data(iris)
 #'   mdlp2(iris) #gives the same result as mdlp(iris) from discretize package
 #'   #uses Sepal.Length as target variable
 #'   mdlp2(df=iris, cl_index = 1,handle_missing = TRUE, labels = TRUE,
@@ -210,7 +216,7 @@ mdlp2 <-  function(df, cl_index = NULL, handle_missing = FALSE, labels = FALSE,
 
     if (handle_missing)
     {
-      data_ <- na.omit(df[c(i,cl_index)])
+      data_ <- stats::na.omit(df[c(i,cl_index)])
       x <- data_[,1]
       y <- data_[,2]
     }

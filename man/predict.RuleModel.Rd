@@ -20,7 +20,7 @@ A vector with predictions.
 Method that matches rule model against test data.
 }
 \examples{
-  #data(iris)
+  utils::data(iris)
   train <- iris[1:100,]
   test <- iris[101:length(iris),]
   #increase for more accurate results in longer time

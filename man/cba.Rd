@@ -22,7 +22,7 @@ Object of class \link{RuleModel}.
 Learns a cba rule set from supplied dataframe.
 }
 \examples{
+  utils::data(iris)
   cba(iris, "Species", rulelearning_options = list(target_rule_count = 50000))
-  data(iris)
 }
 

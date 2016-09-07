@@ -31,7 +31,7 @@ An implementation of the CBA-CB M1 algorithm (Liu et al, 1998) adapted for R and
 }
 \examples{
  #Example 1
-  #data(iris)
+  utils::data(iris)
   txns <- as(discrNumeric(iris, "Species")$Disc.data,"transactions")
   appearance <- getAppearance(iris,"Species")
   rules <- apriori(txns, parameter = list(confidence = 0.5,
@@ -40,9 +40,10 @@ An implementation of the CBA-CB M1 algorithm (Liu et al, 1998) adapted for R and
   inspect(rules)
 
 #Example 2
- data(Adult)
+ utils::data(Adult)
  classitems <- c("income=small","income=large")
- rules <- apriori(Adult, parameter = list(supp = 0.05, conf = 0.5, target = "rules"), appearance=list(rhs=classitems, default="lhs"))
+ rules <- apriori(Adult, parameter = list(supp = 0.3, conf = 0.5,
+ target = "rules"), appearance=list(rhs=classitems, default="lhs"))
  # produces 1266 rules
  rules <- prune(rules,Adult,classitems)
  # Rules after data coverage pruning: 198

@@ -27,6 +27,7 @@ Vector with discretized data.
 Applies cut points to vector.
 }
 \examples{
+  utils::data(iris)
   applyCut(iris[[1]], c(3,6), TRUE, TRUE)
 }
 \seealso{

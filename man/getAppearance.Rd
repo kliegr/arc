@@ -18,7 +18,7 @@ appearance object for mining classification rules
 Method that generates items for values in given data frame column.
 }
 \examples{
-#data(iris)
+utils::data(iris)
 getAppearance(iris,"Species")
 
 }

@@ -47,16 +47,17 @@ Within the arc package, this function serves as a replacement for the CBA Rule G
 }
 \examples{
 # Example 1
- data(Adult)
- rules <- topRules(Adult, appearance = list(), target_rule_count = 100, init_support = 0.5,init_conf = 0.9, minlen = 1, init_maxlen = 10)
+ utils::data(Adult)
+ rules <- topRules(Adult, appearance = list(), target_rule_count = 100,
+  init_support = 0.5,init_conf = 0.9, minlen = 1, init_maxlen = 10)
 
 # Example 2
-  # data(iris)
+  utils::data(iris)
   rules <- topRules(as(discrNumeric(iris, "Species")$Disc.data,"transactions"),
-   getAppearance(iris,"Species"))
+  getAppearance(iris,"Species"))
 
 # Example 3
-  # data(iris)
+  utils::data(iris)
   appearance <- list(rhs =  c("Species=setosa", "Species=versicolor",
    "Species=virginica"), default="lhs")
   data <- sapply(iris,as.factor)

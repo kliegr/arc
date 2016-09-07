@@ -1,4 +1,7 @@
+#' @importFrom utils read.csv write.csv data
 library(arules)
+
+
 
 #' RuleModel
 #'
@@ -30,7 +33,7 @@ RuleModel <- setClass("RuleModel",
 #' @export
 #' @method predict RuleModel
 #' @examples
-#'   #data(iris)
+#'   utils::data(iris)
 #'   train <- iris[1:100,]
 #'   test <- iris[101:length(iris),]
 #'   #increase for more accurate results in longer time
@@ -84,7 +87,7 @@ rulemodelAccuracy<- function(prediction, groundtruth)
 #' @export
 #'
 #' @examples
-#' #data(iris)
+#' utils::data(iris)
 #' getAppearance(iris,"Species")
 #'
 getAppearance <- function(df, classatt){
@@ -114,7 +117,7 @@ getAppearance <- function(df, classatt){
 #'
 cbaCSV <- function(path, outpath = NULL, classatt = NULL, idcolumn = NULL, rulelearning_options = NULL, pruning_options = NULL)
 {
-  train <- read.csv(path, header  =TRUE, check.names = FALSE)
+  train <- utils::read.csv(path, header  =TRUE, check.names = FALSE)
   if (!is.null(idcolumn))
   {
     train <- subset( train, select = -c (idcolumn) )
@@ -127,7 +130,7 @@ cbaCSV <- function(path, outpath = NULL, classatt = NULL, idcolumn = NULL, rulel
   rm<-cba(train, classatt, rulelearning_options, pruning_options)
   if (!is.null(outpath))
   {
-    write.csv(as(rm@rules, "data.frame"), outpath, row.names=TRUE, quote = TRUE)
+    utils::write.csv(as(rm@rules, "data.frame"), outpath, row.names=TRUE, quote = TRUE)
   }
   return(rm)
 
@@ -141,7 +144,7 @@ cbaCSV <- function(path, outpath = NULL, classatt = NULL, idcolumn = NULL, rulel
 #'
 cbaIris <- function()
 {
-  #data(iris)
+  utils::data("iris")
   classatt <- "Species"
   train <- iris[1:100,]
   test <- iris[101:length(iris),]
@@ -164,8 +167,8 @@ cbaIris <- function()
 #' @return Object of class \link{RuleModel}.
 #'
 #' @examples
+#'   utils::data(iris)
 #'   cba(iris, "Species", rulelearning_options = list(target_rule_count = 50000))
-#'   data(iris)
 
 cba <- function(train, classatt, rulelearning_options=NULL, pruning_options=NULL){
 
