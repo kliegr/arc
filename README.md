@@ -8,6 +8,7 @@ This package for R implements the Classification based on Associations algorithm
 
 The [arules](https://github.com/mhahsler/arules/) package is used for the rule generation step.
 
+The package is also availabe in **R CRAN repository** as [Association Rule Classification (arc)](https://cran.r-project.org/web/packages/arc/index.html) package.
 ## Features 
 - Pure R implementation* 
 - Supports numerical predictor attributes (via parameter-free supervised  discretization)
