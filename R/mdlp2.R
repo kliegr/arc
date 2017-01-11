@@ -1,4 +1,3 @@
-#' @importFrom utils data
 #' @importFrom stats na.omit
 #' @import discretization
 library(discretization)
@@ -15,8 +14,7 @@ library(discretization)
 #' @return list with two slots: \code{$cutp} with cutpoints and \code{$Disc.data} with discretization results
 #'
 #' @examples
-#'   utils::data(iris)
-#'   discrNumeric(iris, "Species")
+#'   discrNumeric(datasets::iris, "Species")
 #'
 #' @export
 discrNumeric <- function(df, classatt, min_distinct_values = 3, unsupervised_bins = 3, discretize_class = FALSE)
@@ -53,8 +51,7 @@ discrNumeric <- function(df, classatt, min_distinct_values = 3, unsupervised_bin
 #' @export
 #'
 #' @examples
-#'   utils::data(iris)
-#'   applyCuts(iris, list(c(5,6), c(2,3), "All", "NULL", "NULL"), TRUE, TRUE)
+#'   applyCuts(datasets::iris, list(c(5,6), c(2,3), "All", "NULL", "NULL"), TRUE, TRUE)
 #'
 #' @seealso{applyCut}
 #'
@@ -87,8 +84,7 @@ applyCuts <-function(df,cutp,infinite_bounds,labels)
 #' @export
 #'
 #' @examples
-#'   utils::data(iris)
-#'   applyCut(iris[[1]], c(3,6), TRUE, TRUE)
+#'   applyCut(datasets::iris[[1]], c(3,6), TRUE, TRUE)
 #' @seealso \code{\link{applyCuts}}
 #'
 applyCut <- function(col, cuts, infinite_bounds, labels)
@@ -132,20 +128,20 @@ applyCut <- function(col, cuts, infinite_bounds, labels)
 }
 
 #' Unsupervised Discretization
-#' @description Discretizes provided numeric vector using unsupervised algorithm (k-Means).
+#' @description Discretizes provided numeric vector.
 #' @param categories number of categories (bins) to produce.
 #' @param data input numeric vector.
 #' @param infinite_bounds a logical indicating how the bounds on the extremes should look like.
 #' @param labels a logical indicating whether the bins of the discretized data should be represented by integer codes or as interval notation using (a;b] when set to TRUE.
+#' @param method clustering method, one of "interval" (equal interval width), "frequency" (equal frequency), "cluster" (k-means clustering). See also documentation of the \code{\link[arules]{discretize}} function from the arules package.
 #' @return Discretized data. If there was no discretization specified for some columns, these are returned as is.
 #' @export
 #'
 #' @examples
-#'   utils::data(iris)
-#'   discretizeUnsupervised(iris[[1]])
+#'   discretizeUnsupervised(datasets::iris[[1]])
 #'
 
-discretizeUnsupervised <- function(data, labels=FALSE, infinite_bounds=FALSE,categories=3)
+discretizeUnsupervised <- function(data, labels=FALSE, infinite_bounds=FALSE,categories=3,method="cluster")
 {
   if (is.factor(data))
   {
@@ -157,7 +153,7 @@ discretizeUnsupervised <- function(data, labels=FALSE, infinite_bounds=FALSE,cat
     cutp <- "NULL"
     xd <- factor(data)
   } else {
-    cutp <- discretize(data,  "frequency", categories = categories, onlycuts=TRUE)
+    cutp <- discretize(data,  method, categories = categories, onlycuts=TRUE)
     #remove lower and upper bounds, so that they can be replaced by +-infinite
     cutp <- cutp[-c(1, length(cutp))]
     xd <- applyCut(data, cutp, infinite_bounds, labels)
@@ -181,10 +177,9 @@ discretizeUnsupervised <- function(data, labels=FALSE, infinite_bounds=FALSE,cat
 #' @export
 #'
 #' @examples
-#'   utils::data(iris)
-#'   mdlp2(iris) #gives the same result as mdlp(iris) from discretize package
+#'   mdlp2(datasets::iris) #gives the same result as mdlp(datasets::iris) from discretize package
 #'   #uses Sepal.Length as target variable
-#'   mdlp2(df=iris, cl_index = 1,handle_missing = TRUE, labels = TRUE,
+#'   mdlp2(df=datasets::iris, cl_index = 1,handle_missing = TRUE, labels = TRUE,
 #'   skip_nonnumeric = TRUE, infinite_bounds = TRUE, min_distinct_values = 30)
 #'
 

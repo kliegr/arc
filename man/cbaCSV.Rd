@@ -4,7 +4,7 @@
 \alias{cbaCSV}
 \title{Example CBA Workflow with CSV Input}
 \usage{
-cbaCSV(path, outpath = NULL, classatt = NULL, idcolumn = NULL,
+cbaCSV(path, outpath = NULL, classAtt = NULL, idcolumn = NULL,
   rulelearning_options = NULL, pruning_options = NULL)
 }
 \arguments{
@@ -12,7 +12,7 @@ cbaCSV(path, outpath = NULL, classatt = NULL, idcolumn = NULL,
 
 \item{outpath}{path to write the rule set to.}
 
-\item{classatt}{the name of the class attribute.}
+\item{classAtt}{the name of the class attribute.}
 
 \item{idcolumn}{the name of the id column in the dataf ile.}
 
@@ -21,7 +21,7 @@ cbaCSV(path, outpath = NULL, classatt = NULL, idcolumn = NULL,
 \item{pruning_options}{custom options for the pruning algorithm overriding the default values.}
 }
 \value{
-Object of class \link{RuleModel}
+Object of class \link{CBARuleModel}
 }
 \description{
 Learns a CBA rule set and saves the resulting rule set back to csv.

@@ -22,8 +22,7 @@ discretized data. If there was no discretization specified for some columns, the
 Applies cut points to input data frame.
 }
 \examples{
-  utils::data(iris)
-  applyCuts(iris, list(c(5,6), c(2,3), "All", "NULL", "NULL"), TRUE, TRUE)
+  applyCuts(datasets::iris, list(c(5,6), c(2,3), "All", "NULL", "NULL"), TRUE, TRUE)
 
 }
 \seealso{

@@ -31,10 +31,9 @@ Discretized data. If there were any non-numeric input columns they are returned 
 Performs supervised discretization of numeric columns, except class, on the provided data frame. Uses the Minimum Description Length Principle algorithm (Fayyed and Irani, 1993) as implemented in the discretization package.
 }
 \examples{
-  utils::data(iris)
-  mdlp2(iris) #gives the same result as mdlp(iris) from discretize package
+  mdlp2(datasets::iris) #gives the same result as mdlp(datasets::iris) from discretize package
   #uses Sepal.Length as target variable
-  mdlp2(df=iris, cl_index = 1,handle_missing = TRUE, labels = TRUE,
+  mdlp2(df=datasets::iris, cl_index = 1,handle_missing = TRUE, labels = TRUE,
   skip_nonnumeric = TRUE, infinite_bounds = TRUE, min_distinct_values = 30)
 
 }

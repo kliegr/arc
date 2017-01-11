@@ -1,14 +1,14 @@
 Package: arc
 Title: Association Rule Classification
-Version: 1.0
+Version: 1.0.1
 Author: Tomas Kliegr [aut, cre]
 Maintainer: Tomas Kliegr <kliegr@gmail.com>
 Description: Implements the Classification-based on
-    Association Rules (CBA) algorithm for association rule classification (ARC). 
+    Association Rules (CBA) algorithm for association rule classification (ARC).
     The package also contains several convenience methods that allow to automatically
     set CBA parameters (minimum confidence, minimum support) and it also natively
     handles numeric attributes by integrating a pre-discretization step.
-    The rule generation phase is handled by the 'arules' package. 
+    The rule generation phase is handled by the 'arules' package.
 Depends:
     R (>= 3.2.3),
     arules,
@@ -19,5 +19,6 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     Matrix,
-    methods
+    methods,
+    datasets
 RoxygenNote: 5.0.1

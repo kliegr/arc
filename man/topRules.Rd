@@ -52,15 +52,14 @@ Within the arc package, this function serves as a replacement for the CBA Rule G
   init_support = 0.5,init_conf = 0.9, minlen = 1, init_maxlen = 10)
 
 # Example 2
-  utils::data(iris)
-  rules <- topRules(as(discrNumeric(iris, "Species")$Disc.data,"transactions"),
-  getAppearance(iris,"Species"))
+  rules <- topRules(as(discrNumeric(datasets::iris, "Species")$Disc.data,"transactions"),
+  getAppearance(datasets::iris,"Species"))
 
 # Example 3
-  utils::data(iris)
+  utils::data(datasets::iris)
   appearance <- list(rhs =  c("Species=setosa", "Species=versicolor",
    "Species=virginica"), default="lhs")
-  data <- sapply(iris,as.factor)
+  data <- sapply(datasets::iris,as.factor)
   data <- data.frame(data, check.names=FALSE)
   txns <- as(data,"transactions")
   rules <- topRules(txns, appearance)

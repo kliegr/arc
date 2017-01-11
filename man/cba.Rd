@@ -4,25 +4,24 @@
 \alias{cba}
 \title{CBA Classifier}
 \usage{
-cba(train, classatt, rulelearning_options = NULL, pruning_options = NULL)
+cba(train, classAtt, rulelearning_options = NULL, pruning_options = NULL)
 }
 \arguments{
 \item{train}{a data frame with data.}
 
-\item{classatt}{the name of the class attribute.}
+\item{classAtt}{the name of the class attribute.}
 
 \item{rulelearning_options}{custom options for the rule learning algorithm overriding the default values.}
 
 \item{pruning_options}{custom options for the pruning algorithm overriding the default values.}
 }
 \value{
-Object of class \link{RuleModel}.
+Object of class \link{CBARuleModel}.
 }
 \description{
-Learns a cba rule set from supplied dataframe.
+Learns a CBA rule set from supplied dataframe.
 }
 \examples{
-  utils::data(iris)
-  cba(iris, "Species", rulelearning_options = list(target_rule_count = 50000))
+  cba(datasets::iris, "Species", rulelearning_options = list(target_rule_count = 50000))
 }
 

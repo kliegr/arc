@@ -31,16 +31,15 @@ An implementation of the CBA-CB M1 algorithm (Liu et al, 1998) adapted for R and
 }
 \examples{
  #Example 1
-  utils::data(iris)
-  txns <- as(discrNumeric(iris, "Species")$Disc.data,"transactions")
-  appearance <- getAppearance(iris,"Species")
+  txns <- as(discrNumeric(datasets::iris, "Species")$Disc.data,"transactions")
+  appearance <- getAppearance(datasets::iris,"Species")
   rules <- apriori(txns, parameter = list(confidence = 0.5,
   support= 0.01, minlen= 2, maxlen= 4),appearance = appearance)
   prune(rules,txns, appearance$rhs)
   inspect(rules)
 
 #Example 2
- utils::data(Adult)
+ utils::data(Adult) # this dataset comes with the arules package
  classitems <- c("income=small","income=large")
  rules <- apriori(Adult, parameter = list(supp = 0.3, conf = 0.5,
  target = "rules"), appearance=list(rhs=classitems, default="lhs"))

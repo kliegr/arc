@@ -5,7 +5,7 @@
 \title{Unsupervised Discretization}
 \usage{
 discretizeUnsupervised(data, labels = FALSE, infinite_bounds = FALSE,
-  categories = 3)
+  categories = 3, method = "cluster")
 }
 \arguments{
 \item{data}{input numeric vector.}
@@ -15,16 +15,17 @@ discretizeUnsupervised(data, labels = FALSE, infinite_bounds = FALSE,
 \item{infinite_bounds}{a logical indicating how the bounds on the extremes should look like.}
 
 \item{categories}{number of categories (bins) to produce.}
+
+\item{method}{clustering method, one of "interval" (equal interval width), "frequency" (equal frequency), "cluster" (k-means clustering). See also documentation of the \code{\link[arules]{discretize}} function from the arules package.}
 }
 \value{
 Discretized data. If there was no discretization specified for some columns, these are returned as is.
 }
 \description{
-Discretizes provided numeric vector using unsupervised algorithm (k-Means).
+Discretizes provided numeric vector.
 }
 \examples{
-  utils::data(iris)
-  discretizeUnsupervised(iris[[1]])
+  discretizeUnsupervised(datasets::iris[[1]])
 
 }
 
