@@ -30,12 +30,18 @@ discrNumeric <- function(df, classatt, min_distinct_values = 3, unsupervised_bin
     else
     {
       df[[cl_index]] <- factor(df[[cl_index]])
+
     }
   }
   discr <- mdlp2(df,cl_index=cl_index, skip_nonnumeric = TRUE, labels = TRUE,
                  handle_missing = TRUE, infinite_bounds = TRUE, min_distinct_values)
   if (exists("class_discr")){
     discr$cutp[[cl_index]] <- class_discr$cutp
+  }
+  else{
+    #experimental
+    # associate class with NULL which indicates it should not be discretized but turned to factor
+    discr$cutp[[cl_index]] <- "NULL"
   }
   return (discr)
 
@@ -72,7 +78,7 @@ applyCuts <-function(df,cutp,infinite_bounds,labels)
 #' @param col input vector with data.
 #' @param cuts vector with cutpoints.
 #' There are several special values defined:
-#' \code{"NULL"} indicates that no discretization will be performed,
+#' \code{"NULL"} indicates that no discretization will be performed, but the value will be converted to factor
 #'  \code{"All"} indicates all values will be merged into one.
 
 #' @param infinite_bounds a logical indicating how the bounds on the extremes should look like.
@@ -92,7 +98,7 @@ applyCut <- function(col, cuts, infinite_bounds, labels)
   cuts1 <- unlist(cuts)
   if (cuts1[1] == "NULL")
   {
-    return(col)
+    return(as.factor(col))
   }
   else if (cuts1[1] == "All")
   {

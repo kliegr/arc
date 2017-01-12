@@ -156,6 +156,36 @@ cbaIris <- function()
   return (acc)
 }
 
+#' @title Test CBA Workflow on Iris Dataset with numeric target
+#' @description Test workflow on iris dataset: learns a cba classifier on one "train set" fold, and applies it to the second  "test set" fold.
+#'
+#' @return Accuracy.
+#' @export
+#'
+#'
+cbaIrisNumeric <- function()
+{
+  classAtt <- "Species"
+  set.seed(111)
+  allData <- datasets::iris[sample(nrow(datasets::iris)),]
+
+  #map target to numeric codes
+  x <- vector(mode="numeric", length=nrow(allData))
+  x[allData[5]=="setosa"] <- 1
+  x[allData[5]=="virginica"] <- 2
+  x[allData[5]=="versicolor"] <- 3
+  allData[5]<-x
+
+  trainFold <- allData[1:100,]
+  testFold <- allData[101:nrow(allData),]
+  # increase for more accurate results in longer time
+  target_rule_count <- 1000
+  rm <- cba(trainFold, classAtt = classAtt, rulelearning_options = list(target_rule_count = target_rule_count))
+  prediction <- predict(rm, testFold)
+  acc <- CBARuleModelAccuracy(prediction, testFold[[classAtt]])
+  return (acc)
+}
+
 #' @title CBA Classifier
 #' @description Learns a CBA rule set from supplied dataframe.
 #' @export
