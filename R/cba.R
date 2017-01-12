@@ -171,10 +171,10 @@ cbaIrisNumeric <- function()
 
   #map target to numeric codes
   x <- vector(mode="numeric", length=nrow(allData))
-  x[allData[5]=="setosa"] <- 1
-  x[allData[5]=="virginica"] <- 2
-  x[allData[5]=="versicolor"] <- 3
-  allData[5]<-x
+  x[allData[5] == "setosa"] <- 1
+  x[allData[5] == "virginica"] <- 2
+  x[allData[5] == "versicolor"] <- 3
+  allData[5] <- x
 
   trainFold <- allData[1:100,]
   testFold <- allData[101:nrow(allData),]

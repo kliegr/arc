@@ -29,8 +29,8 @@ discrNumeric <- function(df, classatt, min_distinct_values = 3, unsupervised_bin
     }
     else
     {
+      message("setting x")
       df[[cl_index]] <- factor(df[[cl_index]])
-
     }
   }
   discr <- mdlp2(df,cl_index=cl_index, skip_nonnumeric = TRUE, labels = TRUE,
@@ -41,7 +41,7 @@ discrNumeric <- function(df, classatt, min_distinct_values = 3, unsupervised_bin
   else{
     #experimental
     # associate class with NULL which indicates it should not be discretized but turned to factor
-    discr$cutp[[cl_index]] <- "NULL"
+    discr$cutp[cl_index] <- list(NULL)
   }
   return (discr)
 
@@ -57,7 +57,7 @@ discrNumeric <- function(df, classatt, min_distinct_values = 3, unsupervised_bin
 #' @export
 #'
 #' @examples
-#'   applyCuts(datasets::iris, list(c(5,6), c(2,3), "All", "NULL", "NULL"), TRUE, TRUE)
+#'   applyCuts(datasets::iris, list(c(5,6), c(2,3), "All", NULL, NULL), TRUE, TRUE)
 #'
 #' @seealso{applyCut}
 #'
@@ -78,7 +78,7 @@ applyCuts <-function(df,cutp,infinite_bounds,labels)
 #' @param col input vector with data.
 #' @param cuts vector with cutpoints.
 #' There are several special values defined:
-#' \code{"NULL"} indicates that no discretization will be performed, but the value will be converted to factor
+#' \code{NULL} indicates that no discretization will be performed, but the value will be converted to factor
 #'  \code{"All"} indicates all values will be merged into one.
 
 #' @param infinite_bounds a logical indicating how the bounds on the extremes should look like.
@@ -96,7 +96,7 @@ applyCuts <-function(df,cutp,infinite_bounds,labels)
 applyCut <- function(col, cuts, infinite_bounds, labels)
 {
   cuts1 <- unlist(cuts)
-  if (cuts1[1] == "NULL")
+  if (is.null(cuts1[1]))
   {
     return(as.factor(col))
   }
@@ -151,12 +151,12 @@ discretizeUnsupervised <- function(data, labels=FALSE, infinite_bounds=FALSE,cat
 {
   if (is.factor(data))
   {
-    cutp <- "NULL"
+    cutp <- NULL
     xd<-data
   }
   else if (length(unique(data))<=categories)
   {
-    cutp <- "NULL"
+    cutp <- NULL
     xd <- factor(data)
   } else {
     cutp <- discretize(data,  method, categories = categories, onlycuts=TRUE)
@@ -206,7 +206,7 @@ mdlp2 <-  function(df, cl_index = NULL, handle_missing = FALSE, labels = FALSE,
     if (i == cl_index) next
     if (!is.numeric(df[[i]]) & skip_nonnumeric)
     {
-      cutp[[i]] <- "NULL"
+      cutp[[i]] <- NULL
       next
     }
     if (length(unique(df[[i]])) < min_distinct_values)
@@ -230,7 +230,7 @@ mdlp2 <-  function(df, cl_index = NULL, handle_missing = FALSE, labels = FALSE,
     {
       if (labels)
       {
-        cutp[[i]] <- "NULL"
+        cutp[[i]] <- NULL
         # if labels is set to true the result should be all factors
         # in this case there is no discretization, so we need to convert the number to factor explicitly
         xd[,i] <- as.factor(df[[i]])
