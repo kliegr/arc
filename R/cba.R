@@ -72,6 +72,8 @@ predict.CBARuleModel <- function(object, newdata,...) {
 #' @export
 CBARuleModelAccuracy<- function(prediction, groundtruth)
 {
+  prediction <- as.factor(prediction)
+  groundtruth <- as.factor(groundtruth)
   both <- union(levels(groundtruth), levels(prediction))
   accuracy <- mean(factor(groundtruth, levels = both) == factor(prediction, levels = both))
   return(accuracy)
