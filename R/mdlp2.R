@@ -29,7 +29,6 @@ discrNumeric <- function(df, classatt, min_distinct_values = 3, unsupervised_bin
     }
     else
     {
-      message("setting x")
       df[[cl_index]] <- factor(df[[cl_index]])
     }
   }
@@ -39,7 +38,6 @@ discrNumeric <- function(df, classatt, min_distinct_values = 3, unsupervised_bin
     discr$cutp[[cl_index]] <- class_discr$cutp
   }
   else{
-    #experimental
     # associate class with NULL which indicates it should not be discretized but turned to factor
     discr$cutp[cl_index] <- list(NULL)
   }

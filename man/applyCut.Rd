@@ -11,7 +11,7 @@ applyCut(col, cuts, infinite_bounds, labels)
 
 \item{cuts}{vector with cutpoints.
 There are several special values defined:
-\code{"NULL"} indicates that no discretization will be performed,
+\code{NULL} indicates that no discretization will be performed, but the value will be converted to factor
  \code{"All"} indicates all values will be merged into one.}
 
 \item{infinite_bounds}{a logical indicating how the bounds on the extremes should look like.

@@ -13,11 +13,13 @@ library(arules)
 #' @slot rules an object of class rules from arules package
 #' @slot cutp list of cutpoints
 #' @slot classAtt name of the target class attribute
+#' @slot attTypes attribute types
 CBARuleModel <- setClass("CBARuleModel",
   slots = c(
     rules = "rules",
     cutp = "list",
-    classAtt ="character"
+    classAtt ="character",
+    attTypes = "vector"
   )
 )
 
@@ -229,9 +231,11 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
   rm@rules <- rules
   rm@cutp <- discr$cutp
   rm@classAtt <- classAtt
-
+  rm@attTypes <- sapply(train, class)
   return(rm)
 }
+
+
 
 appendToList <- function(list1,list2){
   # even if length==0, the for cycle would be run once without this condition

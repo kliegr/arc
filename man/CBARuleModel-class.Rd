@@ -16,5 +16,7 @@ This class represents a rule-based classifier.
 \item{\code{cutp}}{list of cutpoints}
 
 \item{\code{classAtt}}{name of the target class attribute}
+
+\item{\code{attTypes}}{attribute types}
 }}
 
