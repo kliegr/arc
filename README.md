@@ -22,6 +22,11 @@ NOTES: * Requires the arules package for the rule generation step ** There are s
 - `topRules` function can be used as a wrapper for apriori allowing to mine for a user specified number of rules.
 
 ## Installation
+The package can be installed directly from CRAN using the following command executed from the R environment:
+```R
+install.packages("arc")
+```
+Development version can be installed from github from the R environment using the devtools package.
 ```R
 devtools::install_github("kliegr/arc")
 ```
@@ -30,6 +35,7 @@ devtools::install_github("kliegr/arc")
 
 ### Complete classification workflow
 ```R
+library(arc)
 # note that the iris dataset contains numerical features
 data(iris)
 train <- iris[1:100,]
@@ -45,6 +51,7 @@ print(acc)
 ### Prune rules
 This shows how to apply arc data coverage pruning to reduce the size of the rule set. A prerequisite is a rule learning task with one attribute on the right hand side.
 ```R
+library(arc)
 data(Adult)
 classitems <- c("income=small","income=large")
 rules <- apriori(Adult, parameter = list(supp = 0.05, conf = 0.5, target = "rules"), appearance=list(rhs=classitems, default="lhs"))
