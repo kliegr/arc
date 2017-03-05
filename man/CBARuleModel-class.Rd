@@ -2,8 +2,8 @@
 % Please edit documentation in R/cba.R
 \docType{class}
 \name{CBARuleModel-class}
-\alias{CBARuleModel}
 \alias{CBARuleModel-class}
+\alias{CBARuleModel}
 \title{CBARuleModel}
 \description{
 This class represents a rule-based classifier.

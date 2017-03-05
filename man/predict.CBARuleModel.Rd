@@ -34,4 +34,3 @@ Method that matches rule model against test data.
 \seealso{
 \link{cbaIris}
 }
-

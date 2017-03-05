@@ -55,4 +55,3 @@ Ma, Bing Liu Wynne Hsu Yiming. Integrating classification and association rule m
 \seealso{
 \code{\link{topRules}}
 }
-

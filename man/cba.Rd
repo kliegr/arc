@@ -24,4 +24,3 @@ Learns a CBA rule set from supplied dataframe.
 \examples{
   cba(datasets::iris, "Species", rulelearning_options = list(target_rule_count = 50000))
 }
-

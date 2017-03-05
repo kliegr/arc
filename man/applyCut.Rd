@@ -32,4 +32,3 @@ Applies cut points to vector.
 \seealso{
 \code{\link{applyCuts}}
 }
-

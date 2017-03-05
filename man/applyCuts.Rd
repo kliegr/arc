@@ -28,4 +28,3 @@ Applies cut points to input data frame.
 \seealso{
 {applyCut}
 }
-

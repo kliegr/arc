@@ -21,4 +21,3 @@ Method that generates items for values in given data frame column.
 getAppearance(datasets::iris,"Species")
 
 }
-

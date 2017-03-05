@@ -44,6 +44,10 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
   {
     stop("When greedy_pruning is enabled, default_rule_pruning must be enabled too")
   }
+  if (length(rules)==0)
+  {
+    stop("Cannot prune empty rule set.")
+  }
   # compute rule length
   tryCatch(
     {
@@ -57,6 +61,7 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
   # sort rules
   rules <- sort(rules,by = c("confidence","support","lhs_length"))
 
+
   # obtain item ids in dataframe for class items
   classitemspositions <- vector(length = length(classitems))
 
@@ -67,16 +72,18 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
   # compute class frequencies
   # this is neeeded to determine support of default rule during default rule pruning
   alldata_classfrequencies <- rowSums(txns@data[classitemspositions,])
+  #set default class based on all transactions
+  #this default will be used only in the rare situation when the first rule matches all transactions,
+  #these will be removed, and thus no transactions will be left to compute default class
+  default_class <- which.max(alldata_classfrequencies)
   orig_transaction_count <- length(txns)
   distinct_items <- ncol(txns)
 
-
-
-  rules_to_remove=c()
+  rules_to_remove <- c()
 
   rule_count <- length(rules)
   RULEWINDOW <- rule_window
-  if (RULEWINDOW>rule_count)
+  if (RULEWINDOW > rule_count)
   {
     RULEWINDOW <- rule_count
   }
@@ -172,14 +179,14 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
           default_class <- which.max(classfrequencies)
           majority_class_tran_count <- classfrequencies[default_class]
           default_err_count <- length(txns) - majority_class_tran_count
-          total_errors[r] <- total_errors[r]+default_err_count
+          total_errors[r] <- total_errors[r] + default_err_count
           default_classes[r] <- default_class
 
           if (greedy_pruning)
           {
             if (last_total_error_with_default<total_errors[r])
             {
-              if (debug) message(paste("Total error including default increasde on rule  ",r))
+              if (debug) message(paste("Total error including default increase on rule  ",r))
               rules_to_remove <- c(rules_to_remove,r+1:rule_count)
               break;
             }
@@ -203,10 +210,14 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
 
   }
   message(paste("Original rules: ",rule_count))
-  rules <- rules[-rules_to_remove]
+  if (length(rules_to_remove)>0)
+  {
+    rules <- rules[-rules_to_remove]
+    total_errors <- total_errors[-rules_to_remove]
+    default_classes <- default_classes[-rules_to_remove]
+  }
+
   message(paste("Rules after data coverage pruning:",length(rules)))
-  total_errors <- total_errors[-rules_to_remove]
-  default_classes <- default_classes[-rules_to_remove]
   # perform default rule pruning
   if (default_rule_pruning)
   {

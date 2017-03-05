@@ -12,4 +12,3 @@ Accuracy.
 \description{
 Test workflow on iris dataset: learns a cba classifier on one "train set" fold , and applies it to the second  "test set" fold.
 }
-

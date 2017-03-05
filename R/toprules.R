@@ -61,7 +61,7 @@ topRules <- function(txns, appearance=list(), target_rule_count = 1000, init_sup
   MAX_RULE_LEN <- length(unique(txns@itemInfo$variables))
   support <- init_support
   conf <- init_conf
-  #maxlen=1 corresponds to rule with empty antecedent and one item in consequent
+  # maxlen=1 corresponds to rule with empty antecedent and one item in consequent
   maxlen <- init_maxlen
 
 
@@ -79,13 +79,18 @@ topRules <- function(txns, appearance=list(), target_rule_count = 1000, init_sup
     }
     new_values<-tryCatch(
       {
-        #invisible(capture.output captures remaining progress output
-        message(paste("Running apriori with SETTING: confidence = ", conf,", support = ", support, ", minlen = ", minlen, ", maxlen = ", maxlen, ", MAX_RULE_LEN = ",  MAX_RULE_LEN))
-        rules <- evalWithTimeout({rules <- suppressWarnings(apriori(txns, parameter =
-                  list(confidence = conf, support = support, minlen = minlen, maxlen = maxlen),
-                  appearance = appearance, control = list(verbose=FALSE)));},
-                 timeout = iteration_timeout, onTimeout="error");
-                rulecount <- length(rules)
+        message(paste("Running apriori with setting: confidence = ", conf,", support = ", support, ", minlen = ", minlen, ", maxlen = ", maxlen, ", MAX_RULE_LEN = ",  MAX_RULE_LEN))
+        # We rely on evalWithTimeout instead of the  maxtime built into arules.
+        # Exceeding maxtime in arules generates a warning, which would need to be discriminated from other innocent warnings, such as maxlen reached
+        # This is not straightforward since R does not directly support selective suppression of warnings.
+        rulesCur <- evalWithTimeout({rulesCur <- suppressWarnings(apriori(txns, parameter =
+                  list(confidence = conf, support = support, minlen = minlen, maxlen = maxlen,maxtime=iteration_timeout+100),
+                  appearance = appearance, control = list(verbose=FALSE)))},
+                 timeout = iteration_timeout, onTimeout="error")
+        rules <- rulesCur
+        #TODO keep rulesCur only if length(rulesCur)>length(rules)
+
+        rulecount <- length(rules)
         message(paste("Rule count: ",rulecount, " Iteration: ",iterations))
         if (rulecount >= target_rule_count)
         {
@@ -122,6 +127,7 @@ topRules <- function(txns, appearance=list(), target_rule_count = 1000, init_sup
             maxlen <- maxlen + 1
             lastrulecount  <- rulecount
             message(paste("Increasing maxlen to:  ", maxlen))
+            message(paste("Increasing minsupp to:  ", support))
             #TODO check if this is a good design option
             maxlendecreased_dueTIMEOUT <- FALSE
           }
@@ -137,10 +143,28 @@ topRules <- function(txns, appearance=list(), target_rule_count = 1000, init_sup
         }
       }, error= function(err)
       {
-        if (!"TimeoutException"  %in% class(err))
+        if ("TimeoutException"  %in% class(err))
         {
-          stop(paste("Unexpecterd error",err))
+          message("TimeoutException")
+          if (debug)
+          {
+            message(err$message)
+          }
         }
+        else if ("reached CPU time limit" %in% err$message)
+        {
+          message("reached CPU time limit")
+          if (debug)
+          {
+            message(err$message)
+          }
+
+        }
+        else
+        {
+          stop(paste("Unexpected error",err, " err class:", class(err)))
+        }
+
         message("Iteration timeout")
         message(paste("Maxlen:",maxlen))
         iteration_time_limit_exceeded <- iteration_time_limit_exceeded + 1

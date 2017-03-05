@@ -17,4 +17,3 @@ Accuracy
 \description{
 Compares predictions with groundtruth and outputs accuracy.
 }
-

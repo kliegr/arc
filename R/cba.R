@@ -48,6 +48,7 @@ CBARuleModel <- setClass("CBARuleModel",
 #' @seealso \link{cbaIris}
 #'
 predict.CBARuleModel <- function(object, newdata,...) {
+  start.time <- Sys.time()
   rule_model <- object
   # apply any discretization that was applied on train data also on test data
   test_txns <- as(applyCuts(newdata, rule_model@cutp, infinite_bounds=TRUE, labels=TRUE), "transactions")
@@ -61,6 +62,9 @@ predict.CBARuleModel <- function(object, newdata,...) {
   # get the index of the item on the right hand side of this rule which is true
   # and lookup the name of this item in iteminfo by this index
   result <- droplevels(unlist(lapply(matches, function(match) rule_model@rules@rhs@itemInfo[which(rule_model@rules@rhs[match]@data == TRUE),][1,3])))
+  
+  end.time <- Sys.time()
+  message (paste("Prediction (CBA model application) took:", round(end.time - start.time, 2), " seconds"))  
   return(result)
 }
 
@@ -217,14 +221,14 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
   rules <- do.call("topRules", appendToList(list(txns = txns, appearance = appearance), rulelearning_options))
 
   end.time <- Sys.time()
-  message (paste("Rule learning took:", time.taken <- end.time - start.time))
+  message (paste("Rule learning (incl. automatic threshold detection) took:", round(end.time - start.time, 2), " seconds"))
 
   start.time <- Sys.time()
   rules <- do.call("prune", appendToList(list(rules = rules,txns = txns,classitems = appearance$rhs), pruning_options))
 
   #rules <-prune(rules, txns,classitems,pruning_options)
   end.time <- Sys.time()
-  message (paste("Pruning took:", time.taken <- end.time - start.time))
+  message (paste("Pruning took:", round(end.time - start.time,2), " seconds"))
 
   #bundle cutpoints with rule set into one object
   rm <- CBARuleModel()

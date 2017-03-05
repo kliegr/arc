@@ -1,6 +1,6 @@
 Package: arc
 Title: Association Rule Classification
-Version: 1.0.1
+Version: 1.1
 Author: Tomas Kliegr [aut, cre]
 Maintainer: Tomas Kliegr <kliegr@gmail.com>
 Description: Implements the Classification-based on
@@ -11,7 +11,7 @@ Description: Implements the Classification-based on
     The rule generation phase is handled by the 'arules' package.
 Depends:
     R (>= 3.2.3),
-    arules,
+    arules (>= 1.5-0),
     R.utils,
     discretization
 License: AGPL-3
@@ -21,4 +21,4 @@ Imports:
     Matrix,
     methods,
     datasets
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.0

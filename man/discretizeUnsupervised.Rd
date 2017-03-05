@@ -28,4 +28,3 @@ Discretizes provided numeric vector.
   discretizeUnsupervised(datasets::iris[[1]])
 
 }
-

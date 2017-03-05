@@ -31,4 +31,3 @@ Can discretize both predictor columns in  data frame -- using supervised algorit
 \references{
 Fayyad, U. M. and Irani, K. B. (1993). Multi-interval discretization of continuous-valued attributes for classification learning, Artificial intelligence 13, 1022–1027
 }
-
