@@ -62,9 +62,9 @@ predict.CBARuleModel <- function(object, newdata,...) {
   # get the index of the item on the right hand side of this rule which is true
   # and lookup the name of this item in iteminfo by this index
   result <- droplevels(unlist(lapply(matches, function(match) rule_model@rules@rhs@itemInfo[which(rule_model@rules@rhs[match]@data == TRUE),][1,3])))
-  
+
   end.time <- Sys.time()
-  message (paste("Prediction (CBA model application) took:", round(end.time - start.time, 2), " seconds"))  
+  message (paste("Prediction (CBA model application) took:", round(end.time - start.time, 2), " seconds"))
   return(result)
 }
 
@@ -240,6 +240,57 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
 }
 
 
+
+
+#' @title CBA Classifier from provided rules
+#' @description Learns a CBA rule set from supplied rules
+#' @export
+#' @param train_raw a data frame with raw data (numeric attributes are not discretized).
+#' @param rules Rules class instance  output by the apriori package
+#' @param txns Transactions class instance  passed to  the arules method invocation. Transactions are created over discretized data frame  - numeric values are replaced  with intervals such as "(13;45]".
+#' @param rhs character vectors giving the labels of the items which can appear in the RHS
+#' ($rhs element of the APappearance class instance passed to the arules call)
+#' @param cutp list of cutpoints used to discretize data (required for application of the model on continuous data)
+#' @param classAtt the name of the class attribute.
+#' @param pruning_options custom options for the pruning algorithm overriding the default values.
+#'
+#' @return Object of class \link{CBARuleModel}.
+#'
+#' @examples
+#'   data(humtemp)
+#'   data_raw<-humtemp
+#'   data_discr <- humtemp
+#'   data_discr[,1]<-as.factor(unlist(lapply(data_discr[,1], function(x) {gsub(",", ";", x)})))
+#'   data_discr[,2]<-as.factor(unlist(lapply(data_discr[,2], function(x) {gsub(",", ";", x)})))
+#'   data_discr[,3] <- as.factor(humtemp[,3])
+#'   txns_discr <- as(data_discr, "transactions")
+#'   rules <- apriori(txns_discr, parameter =
+#'    list(confidence = 0.75, support= 3/nrow(data_discr), minlen=1, maxlen=5))
+#'   inspect(rules)
+#'   classAtt="Class"
+#'   appearance <- getAppearance(data_discr, classAtt)
+#'   rmCBA <- cba_manual(data_raw,  rules, txns_discr, appearance$rhs,
+#'    classAtt, cutp= list(), pruning_options=NULL)
+#'   inspect (rmCBA@rules)
+
+
+cba_manual <- function(train_raw,  rules, txns, rhs, classAtt, cutp, pruning_options=NULL){
+
+    start.time <- Sys.time()
+  rules <- do.call("prune", appendToList(list(rules = rules,txns = txns,classitems = rhs), pruning_options))
+
+  #rules <-prune(rules, txns,classitems,pruning_options)
+  end.time <- Sys.time()
+  message (paste("Pruning took:", round(end.time - start.time,2), " seconds"))
+
+  #bundle cutpoints with rule set into one object
+  rm <- CBARuleModel()
+  rm@rules <- rules
+  rm@cutp <- cutp
+  rm@classAtt <- classAtt
+  rm@attTypes <- sapply(train_raw, class)
+  return(rm)
+}
 
 appendToList <- function(list1,list2){
   # even if length==0, the for cycle would be run once without this condition

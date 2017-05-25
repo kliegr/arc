@@ -223,6 +223,12 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
   {
     message("Performing default rule pruning.")
     # find "last rule" the first rule with the smallest number of errors
+    if (debug)
+    {
+      message("total errors by rule")
+      print (total_errors)
+    }
+
     last_rule_pos <- which.min(total_errors)
     # keep only the top rules until "last rule"(inclusive)
     rules <- rules[1:last_rule_pos]
