@@ -47,11 +47,20 @@ CBARuleModel <- setClass("CBARuleModel",
 #'   message(acc)
 #' @seealso \link{cbaIris}
 #'
-predict.CBARuleModel <- function(object, newdata,...) {
+predict.CBARuleModel <- function(object, newdata, donotdiscretize=FALSE,...) {
   start.time <- Sys.time()
   rule_model <- object
   # apply any discretization that was applied on train data also on test data
-  test_txns <- as(applyCuts(newdata, rule_model@cutp, infinite_bounds=TRUE, labels=TRUE), "transactions")
+
+  if (donotdiscretize)
+  {
+    data <- newdata
+  }
+  else
+  {
+    data <- applyCuts(newdata, rule_model@cutp, infinite_bounds=TRUE, labels=TRUE)
+  }
+  test_txns <- as(data, "transactions")
   # t is logical matrix with |rules| rows |test instances| columns
   # the unname function is not strictly necessary, but it may save memory for larger data:
   #  as the is.subset function returns concatenated attribute  values as the name for each column (test instance)
@@ -260,9 +269,17 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
 #'   data(humtemp)
 #'   data_raw<-humtemp
 #'   data_discr <- humtemp
+#'
+#'   #custom discretization
+#'   data_discr[,1]<-cut(humtemp[,1],breaks=seq(from=15,to=45,by=5))
+#'   data_discr[,2]<-cut(humtemp[,2],breaks=c(0,40,60,80,100))
+#'
+#'   #change interval syntax from (15,20] to (15;20], which is required by MARC
 #'   data_discr[,1]<-as.factor(unlist(lapply(data_discr[,1], function(x) {gsub(",", ";", x)})))
 #'   data_discr[,2]<-as.factor(unlist(lapply(data_discr[,2], function(x) {gsub(",", ";", x)})))
 #'   data_discr[,3] <- as.factor(humtemp[,3])
+#'
+#'   #mine rules
 #'   txns_discr <- as(data_discr, "transactions")
 #'   rules <- apriori(txns_discr, parameter =
 #'    list(confidence = 0.75, support= 3/nrow(data_discr), minlen=1, maxlen=5))
@@ -272,11 +289,12 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
 #'   rmCBA <- cba_manual(data_raw,  rules, txns_discr, appearance$rhs,
 #'    classAtt, cutp= list(), pruning_options=NULL)
 #'   inspect (rmCBA@rules)
-
+#'   prediction<-predict(rmCBA,data_discr,donotdiscretize=TRUE)
+#'   acc <- CBARuleModelAccuracy(prediction, data_discr[[classAtt]])
+#'   print(paste("Accuracy:",acc))
 
 cba_manual <- function(train_raw,  rules, txns, rhs, classAtt, cutp, pruning_options=NULL){
-
-    start.time <- Sys.time()
+  start.time <- Sys.time()
   rules <- do.call("prune", appendToList(list(rules = rules,txns = txns,classitems = rhs), pruning_options))
 
   #rules <-prune(rules, txns,classitems,pruning_options)

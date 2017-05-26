@@ -4,7 +4,7 @@
 \alias{predict.CBARuleModel}
 \title{Apply Rule Model}
 \usage{
-\method{predict}{CBARuleModel}(object, newdata, ...)
+\method{predict}{CBARuleModel}(object, newdata, donotdiscretize = FALSE, ...)
 }
 \arguments{
 \item{object}{a \link{CBARuleModel} class instance}
