@@ -4,12 +4,15 @@
 \alias{predict.CBARuleModel}
 \title{Apply Rule Model}
 \usage{
-\method{predict}{CBARuleModel}(object, newdata, donotdiscretize = FALSE, ...)
+\method{predict}{CBARuleModel}(object, data, discretize = TRUE, ...)
 }
 \arguments{
 \item{object}{a \link{CBARuleModel} class instance}
 
-\item{newdata}{a data frame with data}
+\item{data}{a data frame with data}
+
+\item{discretize}{boolean indicating whether the passed data should be discretized
+using information in the passed @cutp slot of the ruleModel argument.}
 
 \item{...}{other arguments (currently not used)}
 }

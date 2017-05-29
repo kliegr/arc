@@ -29,7 +29,9 @@ CBARuleModel <- setClass("CBARuleModel",
 #' @description Method that matches rule model against test data.
 #'
 #' @param object a \link{CBARuleModel} class instance
-#' @param newdata a data frame with data
+#' @param data a data frame with data
+#' @param discretize boolean indicating whether the passed data should be discretized
+#' using information in the passed @cutp slot of the ruleModel argument.
 #' @param ... other arguments (currently not used)
 #' @return A vector with predictions.
 #' @export
@@ -47,30 +49,25 @@ CBARuleModel <- setClass("CBARuleModel",
 #'   message(acc)
 #' @seealso \link{cbaIris}
 #'
-predict.CBARuleModel <- function(object, newdata, donotdiscretize=FALSE,...) {
+predict.CBARuleModel <- function(object, data, discretize=TRUE,...) {
   start.time <- Sys.time()
-  rule_model <- object
   # apply any discretization that was applied on train data also on test data
 
-  if (donotdiscretize)
+  if (discretize)
   {
-    data <- newdata
-  }
-  else
-  {
-    data <- applyCuts(newdata, rule_model@cutp, infinite_bounds=TRUE, labels=TRUE)
+    data <- applyCuts(data, object@cutp, infinite_bounds=TRUE, labels=TRUE)
   }
   test_txns <- as(data, "transactions")
   # t is logical matrix with |rules| rows |test instances| columns
   # the unname function is not strictly necessary, but it may save memory for larger data:
   #  as the is.subset function returns concatenated attribute  values as the name for each column (test instance)
-  t <- unname(is.subset(rule_model@rules@lhs, test_txns))
+  t <- unname(is.subset(object@rules@lhs, test_txns))
   # get row index of first rule matching each transaction
   matches <- apply(t, 2, function(x) min(which(x==TRUE)))
   # for each element in the matches vector (i.e. index of first matching rule)
   # get the index of the item on the right hand side of this rule which is true
   # and lookup the name of this item in iteminfo by this index
-  result <- droplevels(unlist(lapply(matches, function(match) rule_model@rules@rhs@itemInfo[which(rule_model@rules@rhs[match]@data == TRUE),][1,3])))
+  result <- droplevels(unlist(lapply(matches, function(match) object@rules@rhs@itemInfo[which(object@rules@rhs[match]@data == TRUE),][1,3])))
 
   end.time <- Sys.time()
   message (paste("Prediction (CBA model application) took:", round(end.time - start.time, 2), " seconds"))
@@ -289,7 +286,7 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
 #'   rmCBA <- cba_manual(data_raw,  rules, txns_discr, appearance$rhs,
 #'    classAtt, cutp= list(), pruning_options=NULL)
 #'   inspect (rmCBA@rules)
-#'   prediction<-predict(rmCBA,data_discr,donotdiscretize=TRUE)
+#'   prediction<-predict(rmCBA,data_discr,discretize=FALSE)
 #'   acc <- CBARuleModelAccuracy(prediction, data_discr[[classAtt]])
 #'   print(paste("Accuracy:",acc))
 
