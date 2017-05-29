@@ -286,9 +286,9 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
 #'   rmCBA <- cba_manual(data_raw,  rules, txns_discr, appearance$rhs,
 #'    classAtt, cutp= list(), pruning_options=NULL)
 #'   inspect (rmCBA@rules)
-#'   prediction<-predict(rmCBA,data_discr,discretize=FALSE)
-#'   acc <- CBARuleModelAccuracy(prediction, data_discr[[classAtt]])
-#'   print(paste("Accuracy:",acc))
+#'   # prediction<-predict(rmCBA,data_discr,discretize=FALSE)
+#'   # acc <- CBARuleModelAccuracy(prediction, data_discr[[classAtt]])
+#'   # print(paste("Accuracy:",acc))
 
 cba_manual <- function(train_raw,  rules, txns, rhs, classAtt, cutp, pruning_options=NULL){
   start.time <- Sys.time()
