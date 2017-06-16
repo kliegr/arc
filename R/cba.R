@@ -211,7 +211,11 @@ cbaIrisNumeric <- function()
 #' @return Object of class \link{CBARuleModel}.
 #'
 #' @examples
+#'  # Example using automatic threshold detection
 #'   cba(datasets::iris, "Species", rulelearning_options = list(target_rule_count = 50000))
+#'  # Example using manually set confidence and support thresholds
+#'   rm <- cba(datasets::iris, "Species", rulelearning_options = list(minsupp=0.01, minconf=0.5, minlen=1, maxlen=5, maxtime=1000, target_rule_count=50000, trim=TRUE, find_conf_supp_thresholds=FALSE))
+#'   inspect(rules)
 
 cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL){
 
@@ -223,11 +227,27 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
 
   start.time <- Sys.time()
 
+  if (is.null(rulelearning_options) || is.null(rulelearning_options$find_conf_supp_thresholds) || rulelearning_options$find_conf_supp_thresholds==TRUE)
+  {
+    message (paste("Using automatic threshold detection"))
+    rules <- do.call("topRules", appendToList(list(txns = txns, appearance = appearance), rulelearning_options))
+  }
+  else
+  {
+    message (paste("Using manually set thresholds"))
+    rules <- apriori(txns, parameter =
+              list(confidence = rulelearning_options$minconf, support = rulelearning_options$minsupp, minlen = rulelearning_options$minlen, maxlen = rulelearning_options$maxlen,maxtime=rulelearning_options$maxtime),
+            appearance = appearance, control = list(verbose=FALSE))
+    if(rulelearning_options$trim & length(rules) > rulelearning_options$target_rule_count)
+    {
+      message("Removing excess discovered rules")
+      rules <- rules[1:rulelearning_options$target_rule_count]
+    }
+  }
 
-  rules <- do.call("topRules", appendToList(list(txns = txns, appearance = appearance), rulelearning_options))
 
   end.time <- Sys.time()
-  message (paste("Rule learning (incl. automatic threshold detection) took:", round(end.time - start.time, 2), " seconds"))
+  message (paste("Rule learning took:", round(end.time - start.time, 2), " seconds"))
 
   start.time <- Sys.time()
   rules <- do.call("prune", appendToList(list(rules = rules,txns = txns,classitems = appearance$rhs), pruning_options))
@@ -286,7 +306,7 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
 #'   rmCBA <- cba_manual(data_raw,  rules, txns_discr, appearance$rhs,
 #'    classAtt, cutp= list(), pruning_options=NULL)
 #'   inspect (rmCBA@rules)
-#'   # prediction<-predict(rmCBA,data_discr,discretize=FALSE)
+#'   # prediction <- predict(rmCBA,data_discr,discretize=FALSE)
 #'   # acc <- CBARuleModelAccuracy(prediction, data_discr[[classAtt]])
 #'   # print(paste("Accuracy:",acc))
 

@@ -36,7 +36,7 @@ library(R.utils)
 #'  rules <- prune(rules,Adult,classitems)
 #'  # Rules after data coverage pruning: 198
 #'  # Performing default rule pruning.
-#'  # Final rule set size:  174
+#'  # Final rule list size:  174
 
 
 prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_window=100,greedy_pruning=FALSE,debug=FALSE){
@@ -46,7 +46,7 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
   }
   if (length(rules)==0)
   {
-    stop("Cannot prune empty rule set.")
+    stop("Cannot prune empty rule list")
   }
   # compute rule length
   tryCatch(
@@ -102,7 +102,7 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
     # the RULEWINDOW parameter controls how many rules are processed at a time
     # there are two possible savings:
     ## in some cases, all transactions can be covered by first N rules, remaining rules thus may not need to be processed at all
-    ## as the pruning proceeds through the rule set, the number of remaining transactions decreases, which makes subsequent multiplications cheaper
+    ## as the pruning proceeds through the rule list, the number of remaining transactions decreases, which makes subsequent multiplications cheaper
 
     # RT holds data precomputed for current window size
     if ((r-1)%%RULEWINDOW==0)
@@ -192,10 +192,7 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
             }
             last_total_error_with_default <- total_errors[r]
           }
-
         }
-
-
       }
       else
       {
@@ -207,8 +204,8 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
       if (debug) message(paste("Antecedent of rule ",r, " does not match at least 1 transaction"))
       rules_to_remove <- c(rules_to_remove,r)
     }
-
   }
+
   message(paste("Original rules: ",rule_count))
   if (length(rules_to_remove)>0)
   {
@@ -232,32 +229,29 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
     last_rule_pos <- which.min(total_errors)
     # keep only the top rules until "last rule"(inclusive)
     rules <- rules[1:last_rule_pos]
-    # add default rule to the end
-    ## the lhs of the default rule hasno items (all item positions to 0 in the item matrix)
-    rules@lhs@data <- cbind(rules@lhs@data, as(matrix(0, distinct_items,1),"ngCMatrix"))
-
-    # now prepare the rhs of the default rule
-    # first prepare empty vector
-    default_rhs <- as(matrix(0, distinct_items,1),"ngCMatrix")
-    # the class associated with the default rule is the class that has been precomputed as part of evaluation of the "last rule"
-    default_rhs[classitemspositions[default_classes[last_rule_pos]]] <- TRUE
-    # finally append the default rule rhs to the rules rhs  matrix
-    rules@rhs@data <- cbind(rules@rhs@data, default_rhs)
-    # compute the support and confidence (will be the same) of the default rule
-    default_rule_support_confidence <- alldata_classfrequencies[default_classes[last_rule_pos]]/orig_transaction_count
-    # append the result
-    rules@quality <- rbind(rules@quality,c(default_rule_support_confidence,default_rule_support_confidence,1,0))
-    # set row name on the newly added default rule to "0"
-    #  so that it does not clash with any of the row names of the original rule set
-    row.names(rules@quality)[nrow(rules@quality)] <- 0
-
   }
-  else{
-    # in case there is no default rule pruning, the "last rule" is actually the last rule among those surviving data coverage pruning
+  else {
     last_rule_pos <- length(rules)
   }
+  # add default rule to the end
+  ## the lhs of the default rule hasno items (all item positions to 0 in the item matrix)
+  rules@lhs@data <- cbind(rules@lhs@data, as(matrix(0, distinct_items,1),"ngCMatrix"))
 
-  message(paste("Final rule set size: ",length(rules)))
+  # now prepare the rhs of the default rule
+  # first prepare empty vector
+  default_rhs <- as(matrix(0, distinct_items,1),"ngCMatrix")
+  # the class associated with the default rule is the class that has been precomputed as part of evaluation of the "last rule"
+  default_rhs[classitemspositions[default_classes[last_rule_pos]]] <- TRUE
+  # finally append the default rule rhs to the rules rhs  matrix
+  rules@rhs@data <- cbind(rules@rhs@data, default_rhs)
+  # compute the support and confidence (will be the same) of the default rule
+  default_rule_support_confidence <- alldata_classfrequencies[default_classes[last_rule_pos]]/orig_transaction_count
+  # append the result
+  rules@quality <- rbind(rules@quality,c(default_rule_support_confidence,default_rule_support_confidence,1,0))
+  # set row name on the newly added default rule to "0"
+  # so that it does not clash with any of the row names of the original rule list
+  row.names(rules@quality)[nrow(rules@quality)] <- 0
+  message(paste("Final rule list size: ",length(rules)))
   return(rules)
 }
 
