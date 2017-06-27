@@ -47,7 +47,7 @@ An implementation of the CBA-CB M1 algorithm (Liu et al, 1998) adapted for R and
  rules <- prune(rules,Adult,classitems)
  # Rules after data coverage pruning: 198
  # Performing default rule pruning.
- # Final rule set size:  174
+ # Final rule list size:  174
 }
 \references{
 Ma, Bing Liu Wynne Hsu Yiming. Integrating classification and association rule mining. Proceedings of the fourth international conference on knowledge discovery and data mining. 1998.

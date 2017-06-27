@@ -64,9 +64,31 @@ predict.CBARuleModel <- function(object, data, discretize=TRUE,...) {
   t <- unname(is.subset(object@rules@lhs, test_txns))
   # get row index of first rule matching each transaction
   matches <- apply(t, 2, function(x) min(which(x==TRUE)))
+
+
+  # check if all instances are classified
+  first_unclassified_instance <- match(Inf,matches)
+  if (!is.na(first_unclassified_instance))
+  {
+    # the is.subset function does not mark default (with empty lhs) rule as applicable for all instances,
+    # we need to do this manually.
+
+    first_rules_with_empty_lhs <- min(which(apply(object@rules@lhs@data, 2, function(x) sum(x))==0))
+    if (!is.na(first_rules_with_empty_lhs))
+    {
+      # the default rule will be used only for instances unclassified by any of the other rules
+      matches[matches==Inf] <- first_rules_with_empty_lhs
+    }
+    else
+    {
+      stop(paste("There were unclassified instances, the first one has index: ", first_unclassified_instance, " and there is no default rule in the classifier"))
+    }
+
+  }
   # for each element in the matches vector (i.e. index of first matching rule)
   # get the index of the item on the right hand side of this rule which is true
   # and lookup the name of this item in iteminfo by this index
+
   result <- droplevels(unlist(lapply(matches, function(match) object@rules@rhs@itemInfo[which(object@rules@rhs[match]@data == TRUE),][1,3])))
 
   end.time <- Sys.time()
@@ -214,8 +236,10 @@ cbaIrisNumeric <- function()
 #'  # Example using automatic threshold detection
 #'   cba(datasets::iris, "Species", rulelearning_options = list(target_rule_count = 50000))
 #'  # Example using manually set confidence and support thresholds
-#'   rm <- cba(datasets::iris, "Species", rulelearning_options = list(minsupp=0.01, minconf=0.5, minlen=1, maxlen=5, maxtime=1000, target_rule_count=50000, trim=TRUE, find_conf_supp_thresholds=FALSE))
-#'   inspect(rules)
+#'   rm <- cba(datasets::iris, "Species", rulelearning_options = list(minsupp=0.01,
+#'    minconf=0.5, minlen=1, maxlen=5, maxtime=1000, target_rule_count=50000, trim=TRUE,
+#'    find_conf_supp_thresholds=FALSE))
+#'   inspect(rm@rules)
 
 cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL){
 

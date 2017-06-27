@@ -29,8 +29,8 @@ library(R.utils)
 #' @seealso \code{\link{prune}}
 #' @examples
 #' # Example 1
-#'  utils::data(Adult)
-#'  rules <- topRules(Adult, appearance = list(), target_rule_count = 100,
+#'   utils::data(Adult)
+#'   rules <- topRules(Adult, appearance = list(), target_rule_count = 100,
 #'   init_support = 0.5,init_conf = 0.9, minlen = 1, init_maxlen = 10)
 #'
 #' # Example 2
