@@ -63,7 +63,9 @@ predict.CBARuleModel <- function(object, data, discretize=TRUE,...) {
   #  as the is.subset function returns concatenated attribute  values as the name for each column (test instance)
   t <- unname(is.subset(object@rules@lhs, test_txns))
   # get row index of first rule matching each transaction
-  matches <- apply(t, 2, function(x) min(which(x==TRUE)))
+  # the suppressWarnings is there because of "no non-missing arguments to min; returning Inf" produced by Min
+  # the returned inf denotes that the instance is not classified, which is handled below
+  matches <- suppressWarnings(apply(t, 2, function(x) min(which(x==TRUE))))
 
 
   # check if all instances are classified
@@ -321,12 +323,14 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
 #'   data_discr[,3] <- as.factor(humtemp[,3])
 #'
 #'   #mine rules
-#'   txns_discr <- as(data_discr, "transactions")
-#'   rules <- apriori(txns_discr, parameter =
-#'    list(confidence = 0.75, support= 3/nrow(data_discr), minlen=1, maxlen=5))
-#'   inspect(rules)
 #'   classAtt="Class"
 #'   appearance <- getAppearance(data_discr, classAtt)
+#'   txns_discr <- as(data_discr, "transactions")
+#'   rules <- apriori(txns_discr, parameter =
+#'    list(confidence = 0.75, support= 3/nrow(data_discr), minlen=1, maxlen=5), appearance=appearance)
+#'   inspect(rules)
+#'
+#'
 #'   rmCBA <- cba_manual(data_raw,  rules, txns_discr, appearance$rhs,
 #'    classAtt, cutp= list(), pruning_options=NULL)
 #'   inspect (rmCBA@rules)
