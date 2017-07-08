@@ -44,12 +44,14 @@ Learns a CBA rule set from supplied rules
   data_discr[,3] <- as.factor(humtemp[,3])
 
   #mine rules
-  txns_discr <- as(data_discr, "transactions")
-  rules <- apriori(txns_discr, parameter =
-   list(confidence = 0.75, support= 3/nrow(data_discr), minlen=1, maxlen=5))
-  inspect(rules)
   classAtt="Class"
   appearance <- getAppearance(data_discr, classAtt)
+  txns_discr <- as(data_discr, "transactions")
+  rules <- apriori(txns_discr, parameter =
+   list(confidence = 0.75, support= 3/nrow(data_discr), minlen=1, maxlen=5), appearance=appearance)
+  inspect(rules)
+
+
   rmCBA <- cba_manual(data_raw,  rules, txns_discr, appearance$rhs,
    classAtt, cutp= list(), pruning_options=NULL)
   inspect (rmCBA@rules)
