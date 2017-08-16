@@ -145,7 +145,7 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
     cur_rule.matches_lhs <- RT.matches_lhs[sr,]
     if (TRUE %in% cur_rule.matches_lhs)
     {
-      if (debug) message(paste("Antecedent of rule ",r, " matches at least 1 transaction"))
+      if (debug) message(paste("Antecedent of rule ",r , " matches at least 1 transaction"))
       # check if rule completely matches  at least one transaction
       R.matches_lhs_and_rhs <- RT.matches_lhs_and_rhs[sr,]
       if (TRUE %in% R.matches_lhs_and_rhs)
@@ -234,7 +234,7 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
     last_rule_pos <- length(rules)
   }
   # add default rule to the end
-  ## the lhs of the default rule hasno items (all item positions to 0 in the item matrix)
+  ## the lhs of the default rule has no items (all item positions to 0 in the item matrix)
   rules@lhs@data <- cbind(rules@lhs@data, as(matrix(0, distinct_items,1),"ngCMatrix"))
 
   # now prepare the rhs of the default rule

@@ -50,7 +50,7 @@ CBARuleModel <- setClass("CBARuleModel",
 #' @seealso \link{cbaIris}
 #'
 predict.CBARuleModel <- function(object, data, discretize=TRUE,...) {
-  start.time <- Sys.time()
+  # start.time <- Sys.time()
   # apply any discretization that was applied on train data also on test data
 
   if (discretize)
@@ -93,8 +93,8 @@ predict.CBARuleModel <- function(object, data, discretize=TRUE,...) {
 
   result <- droplevels(unlist(lapply(matches, function(match) object@rules@rhs@itemInfo[which(object@rules@rhs[match]@data == TRUE),][1,3])))
 
-  end.time <- Sys.time()
-  message (paste("Prediction (CBA model application) took:", round(end.time - start.time, 2), " seconds"))
+  # end.time <- Sys.time()
+  # message (paste("Prediction (CBA model application) took:", round(end.time - start.time, 2), " seconds"))
   return(result)
 }
 
