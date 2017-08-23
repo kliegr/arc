@@ -252,7 +252,6 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
   appearance <- getAppearance(train, classAtt)
 
   start.time <- Sys.time()
-
   if (is.null(rulelearning_options) || is.null(rulelearning_options$find_conf_supp_thresholds) || rulelearning_options$find_conf_supp_thresholds==TRUE)
   {
     message (paste("Using automatic threshold detection"))
@@ -261,6 +260,7 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
   else
   {
     message (paste("Using manually set thresholds"))
+
     rules <- apriori(txns, parameter =
               list(confidence = rulelearning_options$minconf, support = rulelearning_options$minsupp, minlen = rulelearning_options$minlen, maxlen = rulelearning_options$maxlen,maxtime=rulelearning_options$maxtime),
             appearance = appearance, control = list(verbose=FALSE))

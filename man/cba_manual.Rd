@@ -48,7 +48,7 @@ Learns a CBA rule set from supplied rules
   appearance <- getAppearance(data_discr, classAtt)
   txns_discr <- as(data_discr, "transactions")
   rules <- apriori(txns_discr, parameter =
-   list(confidence = 0.75, support= 3/nrow(data_discr), minlen=1, maxlen=5), appearance=appearance)
+   list(confidence = 0.5, support= 3/nrow(data_discr), minlen=1, maxlen=5), appearance=appearance)
   inspect(rules)
 
 

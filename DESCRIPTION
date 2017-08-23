@@ -1,6 +1,6 @@
 Package: arc
 Title: Association Rule Classification
-Version: 1.1.1
+Version: 1.1.2
 Author: Tomas Kliegr [aut, cre]
 Maintainer: Tomas Kliegr <kliegr@gmail.com>
 Description: Implements the Classification-based on
