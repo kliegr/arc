@@ -121,7 +121,7 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
           we <- rule_count
         }
       }
-      # the result of matrix mutliplication is a matrix for which elemenent M[r,t] corresponds to how many items in rule r are matched by an item in transaction t
+      # the result of matrix mutliplication is a matrix for which element M[r,t] corresponds to how many items in rule r are matched by an item in transaction t
       # the conversion from ngCMatrix to dgCMatrix since the definition of matrix multiplication operations on ngCMatrix would mean different result than outlined above
       RT.lhs <- t(as(rules@lhs@data[,ws:we,drop = FALSE],"dgCMatrix")) %*% as(txns@data,"dgCMatrix")
 

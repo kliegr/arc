@@ -23,7 +23,7 @@ A vector with predictions.
 Method that matches rule model against test data.
 }
 \examples{
-  allData<-datasets::iris[sample(nrow(datasets::iris)),]
+  allData <- datasets::iris[sample(nrow(datasets::iris)),]
   trainFold <- allData[1:100,]
   testFold <- allData[101:nrow(allData),]
   #increase for more accurate results in longer time

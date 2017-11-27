@@ -42,7 +42,7 @@ topRules(txns, appearance = list(), target_rule_count = 1000,
 Returns an object of class rules.
 }
 \description{
-A wrapper for the arules method from the apriori package that iteratively changes mining parameters until a desired number of rules is obtained, all options are exhausted or a preset time limit is reached.
+A wrapper for the apriori method from the arules package that iteratively changes mining parameters until a desired number of rules is obtained, all options are exhausted or a preset time limit is reached.
 Within the arc package, this function serves as a replacement for the CBA Rule Generation algorithm (Liu et al, 1998) -- without pessimistic pruning -- with general apriori implementation provided by existing fast R package \strong{arules}.
 }
 \examples{

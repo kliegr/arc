@@ -1,11 +1,11 @@
-#' @importFrom R.utils evalWithTimeout
+#' @importFrom R.utils withTimeout
 #' @import arules
 library(R.utils)
 
 
 
 #' @title Rule Generatio
-#' @description  A wrapper for the arules method from the apriori package that iteratively changes mining parameters until a desired number of rules is obtained, all options are exhausted or a preset time limit is reached.
+#' @description  A wrapper for the apriori method from the arules package that iteratively changes mining parameters until a desired number of rules is obtained, all options are exhausted or a preset time limit is reached.
 #' Within the arc package, this function serves as a replacement for the CBA Rule Generation algorithm (Liu et al, 1998) -- without pessimistic pruning -- with general apriori implementation provided by existing fast R package \strong{arules}.
 #' @references Ma, Bing Liu Wynne Hsu Yiming. Integrating classification and association rule mining. Proceedings of the fourth international conference on knowledge discovery and data mining. 1998.
 
@@ -80,10 +80,10 @@ topRules <- function(txns, appearance=list(), target_rule_count = 1000, init_sup
     new_values<-tryCatch(
       {
         message(paste("Running apriori with setting: confidence = ", conf,", support = ", support, ", minlen = ", minlen, ", maxlen = ", maxlen, ", MAX_RULE_LEN = ",  MAX_RULE_LEN))
-        # We rely on evalWithTimeout instead of the  maxtime built into arules.
+        # We rely on withTimeout instead of the  maxtime built into arules.
         # Exceeding maxtime in arules generates a warning, which would need to be discriminated from other innocent warnings, such as maxlen reached
         # This is not straightforward since R does not directly support selective suppression of warnings.
-        rulesCur <- evalWithTimeout({rulesCur <- suppressWarnings(apriori(txns, parameter =
+        rulesCur <- withTimeout({rulesCur <- suppressWarnings(apriori(txns, parameter =
                   list(confidence = conf, support = support, minlen = minlen, maxlen = maxlen,maxtime=iteration_timeout+100),
                   appearance = appearance, control = list(verbose=FALSE)))},
                  timeout = iteration_timeout, onTimeout="error")

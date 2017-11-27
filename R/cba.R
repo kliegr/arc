@@ -9,6 +9,7 @@ library(arules)
 
 #' @name CBARuleModel-class
 #' @rdname CBARuleModel-class
+#' @export CBARuleModel
 #' @exportClass CBARuleModel
 #' @slot rules an object of class rules from arules package
 #' @slot cutp list of cutpoints
@@ -37,7 +38,7 @@ CBARuleModel <- setClass("CBARuleModel",
 #' @export
 #' @method predict CBARuleModel
 #' @examples
-#'   allData<-datasets::iris[sample(nrow(datasets::iris)),]
+#'   allData <- datasets::iris[sample(nrow(datasets::iris)),]
 #'   trainFold <- allData[1:100,]
 #'   testFold <- allData[101:nrow(allData),]
 #'   #increase for more accurate results in longer time
