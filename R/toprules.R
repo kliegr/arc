@@ -4,7 +4,7 @@ library(R.utils)
 
 
 
-#' @title Rule Generatio
+#' @title Rule Generation
 #' @description  A wrapper for the apriori method from the arules package that iteratively changes mining parameters until a desired number of rules is obtained, all options are exhausted or a preset time limit is reached.
 #' Within the arc package, this function serves as a replacement for the CBA Rule Generation algorithm (Liu et al, 1998) -- without pessimistic pruning -- with general apriori implementation provided by existing fast R package \strong{arules}.
 #' @references Ma, Bing Liu Wynne Hsu Yiming. Integrating classification and association rule mining. Proceedings of the fourth international conference on knowledge discovery and data mining. 1998.

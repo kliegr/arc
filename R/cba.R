@@ -54,7 +54,7 @@ predict.CBARuleModel <- function(object, data, discretize=TRUE,...) {
   # start.time <- Sys.time()
   # apply any discretization that was applied on train data also on test data
 
-  if (discretize)
+  if (discretize && length(rmCBA@cutp)>0)
   {
     data <- applyCuts(data, object@cutp, infinite_bounds=TRUE, labels=TRUE)
   }
