@@ -5,7 +5,7 @@
 \title{Classifier Builder}
 \usage{
 prune(rules, txns, classitems, default_rule_pruning = TRUE,
-  rule_window = 100, greedy_pruning = FALSE, debug = FALSE)
+  rule_window = 50000, greedy_pruning = FALSE, debug = FALSE)
 }
 \arguments{
 \item{rules}{object of class rules from arules package}

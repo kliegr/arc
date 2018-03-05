@@ -3,6 +3,8 @@ arc v1.1.4 (Release date: 2017-12-26)
 Changes
 
 * Added QCBA as a suggested package
+* Improved handling of prediction on datasets with no preprocessing
+* Increased default rule_window value from 100 to 50.000
 
 arc v1.1.3 (Release date: 2017-11-15)
 ==============
@@ -10,4 +12,5 @@ Changes
 
 * Replaced deprecated evalWithTimeout() with withTimeout()
 * Small improvements in source code documentation
+*
 

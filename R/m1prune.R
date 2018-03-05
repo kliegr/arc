@@ -39,7 +39,7 @@ library(R.utils)
 #'  # Final rule list size:  174
 
 
-prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_window=100,greedy_pruning=FALSE,debug=FALSE){
+prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_window=50000,greedy_pruning=FALSE,debug=FALSE){
   if (!default_rule_pruning & greedy_pruning)
   {
     stop("When greedy_pruning is enabled, default_rule_pruning must be enabled too")

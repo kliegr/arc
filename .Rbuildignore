@@ -3,3 +3,4 @@
 ^\.travis\.yml$
 ^.*\.Rproj.RData$
 ^.*\.git$
+README.md

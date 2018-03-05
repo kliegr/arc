@@ -4,6 +4,7 @@ library(discretization)
 
 #' Discretize Numeric Columns In Data frame
 #' @description Can discretize both predictor columns in  data frame -- using supervised algorithm MDLP (Fayyad & Irani, 1993) -- and the target class -- using unsupervised algorithm (k-Means).
+#' This R file contains fragments of code from the GPL-licensed R discretization package by HyunJi Kim.
 #' @references Fayyad, U. M. and Irani, K. B. (1993). Multi-interval discretization of continuous-valued attributes for classification learning, Artificial intelligence 13, 1022–1027
 #' @param df a data frame with data.
 #' @param classatt name the class attribute in df

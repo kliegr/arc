@@ -23,6 +23,7 @@ list with two slots: \code{$cutp} with cutpoints and \code{$Disc.data} with disc
 }
 \description{
 Can discretize both predictor columns in  data frame -- using supervised algorithm MDLP (Fayyad & Irani, 1993) -- and the target class -- using unsupervised algorithm (k-Means).
+This R file contains fragments of code from the GPL-licensed R discretization package by HyunJi Kim.
 }
 \examples{
   discrNumeric(datasets::iris, "Species")

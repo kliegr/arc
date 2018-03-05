@@ -2,7 +2,7 @@
 % Please edit documentation in R/toprules.R
 \name{topRules}
 \alias{topRules}
-\title{Rule Generatio}
+\title{Rule Generation}
 \usage{
 topRules(txns, appearance = list(), target_rule_count = 1000,
   init_support = 0, init_conf = 0.5, conf_step = 0.05, supp_step = 0.05,

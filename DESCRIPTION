@@ -3,15 +3,19 @@ Title: Association Rule Classification
 Version: 1.1.4
 Date: 2017-11-11
 Author: Tomas Kliegr [aut, cre]
+Authors@R: c(person("Tomas", "Kliegr", role = c("aut", "cre"),
+                     email = "kliegr@gmail.com"),
+              person("HyunJi Kim", "See COPYRIGHT field", role = "cph"))
 Maintainer: Tomas Kliegr <kliegr@gmail.com>
 Description: Implements the Classification-based on
-    Association Rules (CBA) algorithm for association rule classification (ARC).
+    Association Rules (CBA) (Bing Liu, Wynne Hsu,	Yiming Ma (1999) <url: http://dl.acm.org/citation.cfm?id=3000292.3000305>) algorithm for association rule classification (ARC).
     The package also contains several convenience methods that allow to automatically
     set CBA parameters (minimum confidence, minimum support) and it also natively
     handles numeric attributes by integrating a pre-discretization step.
     The rule generation phase is handled by the 'arules' package. 
     To further decrease the size of the CBA models produced by the 'arc' package, postprocessing by the 
     'qCBA' package is suggested.
+Copyright: The mdlp2.R script reuses parts of the code from the R `discretization` package by HyunJi Kim (GPL license).                  
 Depends:
     R (>= 3.2.3),
     arules (>= 1.5-0),
