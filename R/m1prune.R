@@ -12,6 +12,7 @@ library(R.utils)
 #' @param default_rule_pruning boolean indicating whether default pruning should be performed. If set to TRUE, default pruning is performed as in the CBA algorithm.
 #'   If set to FALSE, default pruning is not performed i.e. all rules surviving data coverage pruning are kept. In either case, a default rule is added to the end of the classifier.
 #' @param rule_window the number of rules to precompute for CBA data coverage pruning. The default value can be adjusted to decrease runtime.
+#' @param input_list_sorted_by_length indicates by default that the input rule list is sorted by antecedent length (as output by arules), if this param is set to false, the list will be resorted
 #' @param debug output debug messages.
 #' @param greedy_pruning setting to TRUE activates early stopping condition: pruning will be stopped on first rule on which total error increases.
 #'
@@ -39,7 +40,7 @@ library(R.utils)
 #'  # Final rule list size:  174
 
 
-prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_window=50000,greedy_pruning=FALSE,debug=FALSE){
+prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_window=50000,greedy_pruning=FALSE, input_list_sorted_by_length = TRUE,debug=FALSE){
   if (!default_rule_pruning & greedy_pruning)
   {
     stop("When greedy_pruning is enabled, default_rule_pruning must be enabled too")
@@ -60,7 +61,11 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
     })
   # sort rules according to CBA criteria
   # the first of the following two lines is not necessary as long as the rule set was mined by apriori
-  rules <- sort(rules, by = "lhs_length", decreasing="false")
+  if (!input_list_sorted_by_length)
+  {
+    rules <- sort(rules, by = "lhs_length", decreasing="false")
+  }
+
   rules <- sort(rules, by = c("confidence", "support"))
 
 
