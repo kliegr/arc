@@ -1,3 +1,9 @@
+arc v1.2 (Release date: 2018-04-13)
+==============
+Changes
+
+Like in the original CBA paper (Liu et al, 1998), the input rule list is sorted by decreasing confidence, decreasing support, and increasing rule length as the third criterion.
+
 arc v1.1.4 (Release date: 2017-12-26)
 ==============
 Changes

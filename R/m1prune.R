@@ -58,8 +58,10 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
       warning("Is there at least one rule with non empty antecedent?")
       return(rules)
     })
-  # sort rules
-  rules <- sort(rules,by = c("confidence","support","lhs_length"))
+  # sort rules according to CBA criteria
+  # the first of the following two lines is not necessary as long as the rule set was mined by apriori
+  rules <- sort(rules, by = "lhs_length", decreasing="false")
+  rules <- sort(rules, by = c("confidence", "support"))
 
 
   # obtain item ids in dataframe for class items
@@ -72,9 +74,9 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
   # compute class frequencies
   # this is neeeded to determine support of default rule during default rule pruning
   alldata_classfrequencies <- rowSums(txns@data[classitemspositions,])
-  #set default class based on all transactions
-  #this default will be used only in the rare situation when the first rule matches all transactions,
-  #these will be removed, and thus no transactions will be left to compute default class
+  # set default class based on all transactions
+  # this default will be used only in the rare situation when the first rule matches all transactions,
+  # these will be removed, and thus no transactions will be left to compute default class
   default_class <- which.max(alldata_classfrequencies)
   orig_transaction_count <- length(txns)
   distinct_items <- ncol(txns)
@@ -163,7 +165,7 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
         # last_total_error should exclude default rule error, which is added to total_errors[r] later
         last_total_error_without_default <- total_errors[r]
 
-        #check if there are any more transactions to process
+        # check if there are any more transactions to process
         if (ncol(txns@data)==0)
         {
           if (debug) message(paste("rule ",r, " No transactions to process"))
@@ -174,7 +176,7 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
           break
         }
         else{
-          #compute default rule error only if there any transactions left
+          # compute default rule error only if there are any transactions left
           classfrequencies <- rowSums(txns@data[classitemspositions,,drop=FALSE])
           default_class <- which.max(classfrequencies)
           majority_class_tran_count <- classfrequencies[default_class]

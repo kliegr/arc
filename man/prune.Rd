@@ -5,7 +5,8 @@
 \title{Classifier Builder}
 \usage{
 prune(rules, txns, classitems, default_rule_pruning = TRUE,
-  rule_window = 50000, greedy_pruning = FALSE, debug = FALSE)
+  rule_window = 50000, greedy_pruning = FALSE,
+  input_list_sorted_by_length = TRUE, debug = FALSE)
 }
 \arguments{
 \item{rules}{object of class rules from arules package}
@@ -20,6 +21,8 @@ If set to FALSE, default pruning is not performed i.e. all rules surviving data 
 \item{rule_window}{the number of rules to precompute for CBA data coverage pruning. The default value can be adjusted to decrease runtime.}
 
 \item{greedy_pruning}{setting to TRUE activates early stopping condition: pruning will be stopped on first rule on which total error increases.}
+
+\item{input_list_sorted_by_length}{indicates by default that the input rule list is sorted by antecedent length (as output by arules), if this param is set to false, the list will be resorted}
 
 \item{debug}{output debug messages.}
 }

@@ -348,7 +348,7 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
 #'   # acc <- CBARuleModelAccuracy(prediction, data_discr[[classAtt]])
 #'   # print(paste("Accuracy:",acc))
 
-cba_manual <- function(train_raw,  rules, txns, rhs, classAtt, cutp, pruning_options=NULL){
+cba_manual <- function(train_raw,  rules, txns, rhs, classAtt, cutp, pruning_options=list(input_list_sorted_by_length=FALSE)){
   start.time <- Sys.time()
   rules <- do.call("prune", appendToList(list(rules = rules,txns = txns,classitems = rhs), pruning_options))
 
