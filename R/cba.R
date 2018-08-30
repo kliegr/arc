@@ -265,6 +265,7 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
   if (is.null(rulelearning_options) || is.null(rulelearning_options$find_conf_supp_thresholds) || rulelearning_options$find_conf_supp_thresholds==TRUE)
   {
     message (paste("Using automatic threshold detection"))
+    if("find_conf_supp_thresholds" %in% names(rulelearning_options)) rulelearning_options <- rulelearning_options[ - which(names(rulelearning_options) == "find_conf_supp_thresholds")]
     rules <- do.call("topRules", appendToList(list(txns = txns, appearance = appearance), rulelearning_options))
   }
   else

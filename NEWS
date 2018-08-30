@@ -18,5 +18,7 @@ Changes
 
 * Replaced deprecated evalWithTimeout() with withTimeout()
 * Small improvements in source code documentation
-*
+
+arc v1.1.4 (Release date: 2018-8-30)
+* it is possible to set target_rule_count and find_conf_supp_thresholds=TRUE simultaneously
 
