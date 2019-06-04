@@ -48,7 +48,7 @@ classatt <- "Species"
 # learn the classifier
 rm <- cba(train, classatt)
 prediction <- predict(rm, test)
-acc <- rulemodelAccuracy(prediction, test[[classatt]])
+acc <- CBARuleModelAccuracy(prediction, test[[classatt]])
 print(acc)
 ```
 
