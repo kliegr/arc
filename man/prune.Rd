@@ -4,9 +4,16 @@
 \alias{prune}
 \title{Classifier Builder}
 \usage{
-prune(rules, txns, classitems, default_rule_pruning = TRUE,
-  rule_window = 50000, greedy_pruning = FALSE,
-  input_list_sorted_by_length = TRUE, debug = FALSE)
+prune(
+  rules,
+  txns,
+  classitems,
+  default_rule_pruning = TRUE,
+  rule_window = 50000,
+  greedy_pruning = FALSE,
+  input_list_sorted_by_length = TRUE,
+  debug = FALSE
+)
 }
 \arguments{
 \item{rules}{object of class rules from arules package}
@@ -27,7 +34,16 @@ If set to FALSE, default pruning is not performed i.e. all rules surviving data 
 \item{debug}{output debug messages.}
 }
 \value{
-Returns an object of class \link{rules}.
+Returns an object of class \link{rules}. Note that `rules@quality` slot has been extended
+with additional measures, specifically `orderedConf`, `orderedSupp`, and `cumulativeConf`. The rules are output in the order
+in which they are assumed to be applied in classification. Only the first applicable rule is used to
+classify the instance. As a result, in addition to rule confidence -- which is computed over the
+whole training dataset -- it makes sense to define order-sensitive confidence, which is computed
+only from instances reaching the given rule as \eqn{a/(a+b)}, where \eqn{a} is the number of instances
+matching both the antecedent and consequent (available in slo `orderedSupp`) and \eqn{b} is the number of instances matching the antecedent, but
+not matching the consequent of the given rule.  The cumulative confidence is an experimental measure,
+which is computed as the accuracy of the rule list comprising the given rule and all higher priority
+rules (rules with lower index) with uncovered instances excluded from the computation.
 }
 \description{
 An implementation of the CBA-CB M1 algorithm (Liu et al, 1998) adapted for R and arules package apriori implementation in place of CBA-RG.
@@ -46,11 +62,12 @@ An implementation of the CBA-CB M1 algorithm (Liu et al, 1998) adapted for R and
  classitems <- c("income=small","income=large")
  rules <- apriori(Adult, parameter = list(supp = 0.3, conf = 0.5,
  target = "rules"), appearance=list(rhs=classitems, default="lhs"))
- # produces 1266 rules
- rules <- prune(rules,Adult,classitems)
- # Rules after data coverage pruning: 198
+ # produces 25 rules
+ rulesP <- prune(rules,Adult,classitems)
+ rulesP@quality # inspect rule quality measured including the new additions
+ # Rules after data coverage pruning: 8
  # Performing default rule pruning.
- # Final rule list size:  174
+ # Final rule list size:  6
 }
 \references{
 Ma, Bing Liu Wynne Hsu Yiming. Integrating classification and association rule mining. Proceedings of the fourth international conference on knowledge discovery and data mining. 1998.

@@ -4,8 +4,13 @@
 \alias{discrNumeric}
 \title{Discretize Numeric Columns In Data frame}
 \usage{
-discrNumeric(df, classatt, min_distinct_values = 3, unsupervised_bins = 3,
-  discretize_class = FALSE)
+discrNumeric(
+  df,
+  classatt,
+  min_distinct_values = 3,
+  unsupervised_bins = 3,
+  discretize_class = FALSE
+)
 }
 \arguments{
 \item{df}{a data frame with data.}

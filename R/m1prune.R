@@ -16,7 +16,17 @@ library(R.utils)
 #' @param debug output debug messages.
 #' @param greedy_pruning setting to TRUE activates early stopping condition: pruning will be stopped on first rule on which total error increases.
 #'
-#' @return Returns an object of class \link{rules}.
+#' @return Returns an object of class \link{rules}. Note that `rules@quality` slot has been extended
+#' with additional measures, specifically `orderedConf`, `orderedSupp`, and `cumulativeConf`. The rules are output in the order
+#' in which they are assumed to be applied in classification. Only the first applicable rule is used to
+#' classify the instance. As a result, in addition to rule confidence -- which is computed over the
+#' whole training dataset -- it makes sense to define order-sensitive confidence, which is computed
+#' only from instances reaching the given rule as \eqn{a/(a+b)}, where \eqn{a} is the number of instances
+#' matching both the antecedent and consequent (available in slo `orderedSupp`) and \eqn{b} is the number of instances matching the antecedent, but
+#' not matching the consequent of the given rule.  The cumulative confidence is an experimental measure,
+#' which is computed as the accuracy of the rule list comprising the given rule and all higher priority
+#' rules (rules with lower index) with uncovered instances excluded from the computation.
+#'
 #' @export
 #' @seealso \code{\link{topRules}}
 #' @examples
@@ -33,11 +43,12 @@ library(R.utils)
 #'  classitems <- c("income=small","income=large")
 #'  rules <- apriori(Adult, parameter = list(supp = 0.3, conf = 0.5,
 #'  target = "rules"), appearance=list(rhs=classitems, default="lhs"))
-#'  # produces 1266 rules
-#'  rules <- prune(rules,Adult,classitems)
-#'  # Rules after data coverage pruning: 198
+#'  # produces 25 rules
+#'  rulesP <- prune(rules,Adult,classitems)
+#'  rulesP@quality # inspect rule quality measured including the new additions
+#'  # Rules after data coverage pruning: 8
 #'  # Performing default rule pruning.
-#'  # Final rule list size:  174
+#'  # Final rule list size:  6
 
 
 prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_window=50000,greedy_pruning=FALSE, input_list_sorted_by_length = TRUE,debug=FALSE){
@@ -95,11 +106,18 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
     RULEWINDOW <- rule_count
   }
 
-  total_errors <- c(0,rule_count)
-  default_classes <- c(0,rule_count)
+  total_errors <- rep(NA, rule_count)
+
+  default_classes <-rep(NA, rule_count)
   last_total_error_without_default <- 0
   last_total_error_with_default <- Inf
 
+  #not necessary for CBA algorithm, used for list-based rule confidence computation
+  def_rule_errors <-  rep(NA, rule_count)
+  instances_uncovered <-  rep(NA, rule_count)
+  #this variation on confidence is computed only from instances that reach that rule
+  ordered_conf <- rep(NA, rule_count)
+  ordered_supp <- rep(NA, rule_count)
 
   for(r in 1:rule_count)
   {
@@ -138,7 +156,7 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
       RT.rhs <- t(as(rules@rhs@data[classitemspositions,ws:we,drop = FALSE],
         "dgCMatrix")) %*% as(txns@data[classitemspositions,,drop = FALSE],"dgCMatrix")
 
-      # thus the rule r's lhs matches the transaction t iff M[r,t] == number of items in t is the same as number of items in lhs of  rule r,
+      # thus the rule r's lhs matches the transaction t iff M[r,t] == number of items in t is the same as number of items in lhs of  rule r
       RT.matches_lhs <- (rules[ws:we,drop = FALSE]@quality$lhs_length==RT.lhs)
       # the rule r correctly covers the transaction t if the number of items in t matched by the LHS and RHS equals the length of the LHS plus 1 (RHS must always have length 1)
       RT.matches_lhs_and_rhs <- (rules[ws:we,drop = FALSE]@quality$lhs_length+1==RT.lhs+RT.rhs)
@@ -167,6 +185,11 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
         txns@data <- txns@data[,!cur_rule.matches_lhs,drop = FALSE]
         # total errors are computed and set only for rules which will not be pruned
         total_errors[r] <- last_total_error_without_default+sum(cur_rule.matches_lhs-R.matches_lhs_and_rhs)
+
+        #experimental
+        ordered_supp[r] <- sum(R.matches_lhs_and_rhs)
+        ordered_conf[r] <- ordered_supp[r]/sum(cur_rule.matches_lhs)
+
         # last_total_error should exclude default rule error, which is added to total_errors[r] later
         last_total_error_without_default <- total_errors[r]
 
@@ -174,10 +197,11 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
         if (ncol(txns@data)==0)
         {
           if (debug) message(paste("rule ",r, " No transactions to process"))
-          rules_to_remove <- c(rules_to_remove,r+1:rule_count)
+          rules_to_remove <- c(rules_to_remove,(r+1):rule_count)
           # there are no transactions left from which to compute the default class for this rule
           # use default class from the last iteration
           default_classes[r] <- default_class
+          instances_uncovered[r] <- 0
           break
         }
         else{
@@ -186,15 +210,20 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
           default_class <- which.max(classfrequencies)
           majority_class_tran_count <- classfrequencies[default_class]
           default_err_count <- length(txns) - majority_class_tran_count
+
           total_errors[r] <- total_errors[r] + default_err_count
           default_classes[r] <- default_class
 
+          # for ordered confidence computation (not in original CBA)
+          def_rule_errors[r] <- default_err_count
+          instances_uncovered[r] <- sum(classfrequencies)
+          # experimental option  (not in original CBA)
           if (greedy_pruning)
           {
             if (last_total_error_with_default<total_errors[r])
             {
               if (debug) message(paste("Total error including default increase on rule  ",r))
-              rules_to_remove <- c(rules_to_remove,r+1:rule_count)
+              rules_to_remove <- c(rules_to_remove,(r+1):rule_count)
               break;
             }
             last_total_error_with_default <- total_errors[r]
@@ -218,7 +247,11 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
   {
     rules <- rules[-rules_to_remove]
     total_errors <- total_errors[-rules_to_remove]
+    def_rule_errors <- def_rule_errors[-rules_to_remove]
     default_classes <- default_classes[-rules_to_remove]
+    instances_uncovered <- instances_uncovered[-rules_to_remove]
+    ordered_conf <- ordered_conf[-rules_to_remove]
+    ordered_supp <- ordered_supp[-rules_to_remove]
   }
 
   message(paste("Rules after data coverage pruning:",length(rules)))
@@ -236,10 +269,34 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
     last_rule_pos <- which.min(total_errors)
     # keep only the top rules until "last rule"(inclusive)
     rules <- rules[1:last_rule_pos]
+    total_errors <- total_errors[1:last_rule_pos]
+    def_rule_errors <- def_rule_errors[1:last_rule_pos]
+    default_classes <- default_classes[1:last_rule_pos]
+    instances_uncovered <- instances_uncovered[1:last_rule_pos]
+    ordered_conf <- ordered_conf[1:last_rule_pos]
+    ordered_supp <- ordered_supp[1:last_rule_pos]
   }
   else {
     last_rule_pos <- length(rules)
   }
+  # compute ordered confidence estimate for the default rule from the incorrect classifications
+  # by the last regular rule in the list caused by applying the the default rule on instances
+  # uncovered by this rule
+  defaultRuleOrderedConfidence <- 1- def_rule_errors[last_rule_pos]/instances_uncovered[last_rule_pos]
+  # append ordered confidence estimates to regular rules, defaultRuleOrderedConfidence will be
+  # appended later
+  rules@quality <- cbind(rules@quality,orderedConf=ordered_conf)
+  rules@quality <- cbind(rules@quality,orderedSupp=ordered_supp)
+  # compute cumulative_confidence - the accuracy of the rule list up to the given rule excluding uncovered
+  # instances
+  cumulative_confidence<- 1 - (total_errors- def_rule_errors)/(orig_transaction_count - instances_uncovered)
+
+  cumulative_confidence_default_rule <- 1- total_errors[last_rule_pos]/orig_transaction_count
+  # append ordered confidence estimates to regular rules, defaultRuleOrderedConfidence will be
+  # appended later
+  rules@quality <- cbind(rules@quality,cumulativeConf=cumulative_confidence)
+
+
   # add default rule to the end
   ## the lhs of the default rule has no items (all item positions to 0 in the item matrix)
   rules@lhs@data <- cbind(rules@lhs@data, as(matrix(0, distinct_items,1),"ngCMatrix"))
@@ -252,13 +309,25 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
   # finally append the default rule rhs to the rules rhs  matrix
   rules@rhs@data <- cbind(rules@rhs@data, default_rhs)
   # compute the support and confidence (will be the same) of the default rule
-  default_rule_support_confidence <- alldata_classfrequencies[default_classes[last_rule_pos]]/orig_transaction_count
-  # append the result
-  rules@quality <- rbind(rules@quality,c(default_rule_support_confidence,default_rule_support_confidence,1,0))
+  default_rule_absolute_support <- alldata_classfrequencies[default_classes[last_rule_pos]]
+  default_rule_support_confidence <- default_rule_absolute_support/orig_transaction_count
+  #Coverage is the support of the left-hand-side of the rule, in case of default rule all instances are covered
+  coverage_default <- 1.0
+  # lift of default rule is also 1.0
+  lift_default <- 1.0
+  #count is absolute support
+  def_rule_lhs_length <- 0
+  def_rule_ordered_supp <- instances_uncovered[last_rule_pos] * defaultRuleOrderedConfidence
+
+  #changing the order may have undesired consequences
+  #the order is used, e.g., in method prediction
+  rules@quality <- rbind(rules@quality,c(default_rule_support_confidence,default_rule_support_confidence,coverage_default,lift_default,default_rule_absolute_support,def_rule_lhs_length,defaultRuleOrderedConfidence,def_rule_ordered_supp,cumulative_confidence_default_rule))
   # set row name on the newly added default rule to "0"
   # so that it does not clash with any of the row names of the original rule list
   row.names(rules@quality)[nrow(rules@quality)] <- 0
   message(paste("Final rule list size: ",length(rules)))
+
+
   return(rules)
 }
 

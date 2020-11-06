@@ -4,8 +4,14 @@
 \alias{cbaCSV}
 \title{Example CBA Workflow with CSV Input}
 \usage{
-cbaCSV(path, outpath = NULL, classAtt = NULL, idcolumn = NULL,
-  rulelearning_options = NULL, pruning_options = NULL)
+cbaCSV(
+  path,
+  outpath = NULL,
+  classAtt = NULL,
+  idcolumn = NULL,
+  rulelearning_options = NULL,
+  pruning_options = NULL
+)
 }
 \arguments{
 \item{path}{path to csv file with data.}

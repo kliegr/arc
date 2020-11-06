@@ -4,8 +4,13 @@
 \alias{discretizeUnsupervised}
 \title{Unsupervised Discretization}
 \usage{
-discretizeUnsupervised(data, labels = FALSE, infinite_bounds = FALSE,
-  categories = 3, method = "cluster")
+discretizeUnsupervised(
+  data,
+  labels = FALSE,
+  infinite_bounds = FALSE,
+  categories = 3,
+  method = "cluster"
+)
 }
 \arguments{
 \item{data}{input numeric vector.}

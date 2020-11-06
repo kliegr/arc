@@ -4,8 +4,15 @@
 \alias{cba_manual}
 \title{CBA Classifier from provided rules}
 \usage{
-cba_manual(train_raw, rules, txns, rhs, classAtt, cutp,
-  pruning_options = list(input_list_sorted_by_length = FALSE))
+cba_manual(
+  train_raw,
+  rules,
+  txns,
+  rhs,
+  classAtt,
+  cutp,
+  pruning_options = list(input_list_sorted_by_length = FALSE)
+)
 }
 \arguments{
 \item{train_raw}{a data frame with raw data (numeric attributes are not discretized).}

@@ -25,6 +25,32 @@ CBARuleModel <- setClass("CBARuleModel",
 )
 
 
+#' @title Returns vector with confidences for the positive class (useful for ROC or AUC computation)
+#' @description Methods for computing ROC curves require a vector of confidences
+#' of the positive class, while in qCBA, the confidence returned by predict.qCBARuleModel with
+#' outputProbabilies = TRUE returns confidence for the predicted class.
+#' This method converts the values to confidences for the positive class
+#' @export
+#' @param confidences Vector of confidences
+#' @param predictedClass Vector with predicted classes
+#' @param positiveClass Positive class (String)
+#'
+#' @return Vector of confidence values
+#'
+#' @examples
+#' predictedClass = c("setosa","virginica")
+#' confidences = c(0.9,0.6)
+#' baseClass="setosa"
+#' getConfVectorForROC(confidences,predictedClass,baseClass)
+
+getConfVectorForROC <- function(confidences, predictedClass, positiveClass)
+{
+  if (length(levels(as.factor(predictedClass))) != 2){
+    warning("Binary classification expected")
+  }
+  return(abs(confidences - as.integer(predictedClass != positiveClass)))
+}
+
 
 #' Apply Rule Model
 #' @description Method that matches rule model against test data.
@@ -33,6 +59,12 @@ CBARuleModel <- setClass("CBARuleModel",
 #' @param data a data frame with data
 #' @param discretize boolean indicating whether the passed data should be discretized
 #' using information in the passed @cutp slot of the ruleModel argument.
+#' @param outputFiringRuleIDs if set to TRUE, instead of predictions, the function will return one-based IDs of  rules used to classify each instance (one rule per instance).
+#' @param outputConfidenceScores if set to TRUE, instead of predictions, the function will return confidences of the firing rule
+#' @param confScoreType applicable only if `outputConfidenceScores=TRUE`, possible values `ordered` for confidence computed only for training instances reaching this rule, or `global` for standard rule confidence computed from the complete training data
+#' @param positiveClass This setting is only used if `outputConfidenceScores=TRUE`. It should be used only for binary problems. In this
+#' case, the confidence values are recalculated so that these are not confidence values of the predicted class (default behaviour of `outputConfidenceScores=TRUE`)
+#' but rather confidence values associated with the class designated as positive
 #' @param ... other arguments (currently not used)
 #' @return A vector with predictions.
 #' @export
@@ -50,7 +82,7 @@ CBARuleModel <- setClass("CBARuleModel",
 #'   message(acc)
 #' @seealso \link{cbaIris}
 #'
-predict.CBARuleModel <- function(object, data, discretize=TRUE,...) {
+predict.CBARuleModel <- function(object, data, discretize=TRUE,outputFiringRuleIDs=FALSE, outputConfidenceScores=FALSE,confScoreType="ordered", positiveClass=NULL,...) {
   # start.time <- Sys.time()
   # apply any discretization that was applied on train data also on test data
 
@@ -66,11 +98,11 @@ predict.CBARuleModel <- function(object, data, discretize=TRUE,...) {
   # get row index of first rule matching each transaction
   # the suppressWarnings is there because of "no non-missing arguments to min; returning Inf" produced by Min
   # the returned inf denotes that the instance is not classified, which is handled below
-  matches <- suppressWarnings(apply(t, 2, function(x) min(which(x==TRUE))))
+  firingRuleIDs <- suppressWarnings(apply(t, 2, function(x) min(which(x==TRUE))))
 
 
   # check if all instances are classified
-  first_unclassified_instance <- match(Inf,matches)
+  first_unclassified_instance <- match(Inf,firingRuleIDs)
   if (!is.na(first_unclassified_instance))
   {
     # the is.subset function does not mark default (with empty lhs) rule as applicable for all instances,
@@ -80,7 +112,7 @@ predict.CBARuleModel <- function(object, data, discretize=TRUE,...) {
     if (!is.na(first_rules_with_empty_lhs))
     {
       # the default rule will be used only for instances unclassified by any of the other rules
-      matches[matches==Inf] <- first_rules_with_empty_lhs
+      firingRuleIDs[firingRuleIDs==Inf] <- first_rules_with_empty_lhs
     }
     else
     {
@@ -92,11 +124,55 @@ predict.CBARuleModel <- function(object, data, discretize=TRUE,...) {
   # get the index of the item on the right hand side of this rule which is true
   # and lookup the name of this item in iteminfo by this index
 
-  result <- droplevels(unlist(lapply(matches, function(match) object@rules@rhs@itemInfo[which(object@rules@rhs[match]@data == TRUE),][1,3])))
+  prediction <- droplevels(unlist(lapply(firingRuleIDs, function(match) object@rules@rhs@itemInfo[which(object@rules@rhs[match]@data == TRUE),][1,3])))
 
+  if (outputFiringRuleIDs)
+  {
+    if(outputConfidenceScores)
+    {
+      warning("Illegal combination of parameters, ignoring outputConfidenceScores")
+    }
+    return(firingRuleIDs)
+  }
+  if (outputConfidenceScores)
+  {
+    if (outputConfidenceScores)
+    {
+      if (confScoreType =="ordered")
+      {
+        #this position is set in method prune
+        confPositionInVector<-7
+      }
+      else
+      {
+        confPositionInVector<-3
+        if (confScoreType !="global")
+        {
+          message("Unrecognized confScoreType, using value global")
+        }
+      }
+    }
+    # The method uses confidence of the firing rule (as was computed on the entire training data)
+    # as the confidence estimate.
+    # This is not the best approximation of confidence, especially for rules lower in the list
+    confidences <- vector()
+    for (ruleId in firingRuleIDs)
+    {
+      confidence <-  object@rules@quality[ruleId,confPositionInVector]
+      confidences <- c(confidences, confidence)
+    }
+    if (!is.null(positiveClass))
+    {
+      confidences <- getConfVectorForROC(confidences,prediction,positiveClass)
+    }
+    return(confidences)
+  }
+  else
+  {
+    return(prediction)
+  }
   # end.time <- Sys.time()
   # message (paste("Prediction (CBA model application) took:", round(end.time - start.time, 2), " seconds"))
-  return(result)
 }
 
 #' Prediction Accuracy
@@ -284,14 +360,14 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
 
 
   end.time <- Sys.time()
-  message (paste("Rule learning took:", round(end.time - start.time, 2), " seconds"))
+  message (paste("Rule learning took:", round(difftime(end.time, start.time,units = "secs"),2), " seconds"))
 
   start.time <- Sys.time()
   rules <- do.call("prune", appendToList(list(rules = rules,txns = txns,classitems = appearance$rhs), pruning_options))
 
   #rules <-prune(rules, txns,classitems,pruning_options)
   end.time <- Sys.time()
-  message (paste("Pruning took:", round(end.time - start.time,2), " seconds"))
+  message (paste("Pruning took:", round(difftime(end.time, start.time,units = "secs"),2), " seconds"))
 
   #bundle cutpoints with rule set into one object
   rm <- CBARuleModel()
@@ -355,13 +431,14 @@ cba_manual <- function(train_raw,  rules, txns, rhs, classAtt, cutp, pruning_opt
 
   #rules <-prune(rules, txns,classitems,pruning_options)
   end.time <- Sys.time()
-  message (paste("Pruning took:", round(end.time - start.time,2), " seconds"))
+  message (paste("Pruning took:", round(difftime(end.time, start.time,units = "secs"),2), " seconds"))
 
   #bundle cutpoints with rule set into one object
   rm <- CBARuleModel()
   rm@rules <- rules
   rm@cutp <- cutp
   rm@classAtt <- classAtt
+
   rm@attTypes <- sapply(train_raw, class)
   return(rm)
 }

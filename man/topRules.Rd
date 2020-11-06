@@ -4,10 +4,22 @@
 \alias{topRules}
 \title{Rule Generation}
 \usage{
-topRules(txns, appearance = list(), target_rule_count = 1000,
-  init_support = 0, init_conf = 0.5, conf_step = 0.05, supp_step = 0.05,
-  minlen = 2, init_maxlen = 3, iteration_timeout = 2,
-  total_timeout = 100, max_iterations = 30, trim = TRUE, debug = FALSE)
+topRules(
+  txns,
+  appearance = list(),
+  target_rule_count = 1000,
+  init_support = 0,
+  init_conf = 0.5,
+  conf_step = 0.05,
+  supp_step = 0.05,
+  minlen = 2,
+  init_maxlen = 3,
+  iteration_timeout = 2,
+  total_timeout = 100,
+  max_iterations = 30,
+  trim = TRUE,
+  debug = FALSE
+)
 }
 \arguments{
 \item{txns}{input transactions.}

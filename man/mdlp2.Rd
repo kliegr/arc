@@ -4,9 +4,15 @@
 \alias{mdlp2}
 \title{Supervised Discretization}
 \usage{
-mdlp2(df, cl_index = NULL, handle_missing = FALSE, labels = FALSE,
-  skip_nonnumeric = FALSE, infinite_bounds = FALSE,
-  min_distinct_values = 3)
+mdlp2(
+  df,
+  cl_index = NULL,
+  handle_missing = FALSE,
+  labels = FALSE,
+  skip_nonnumeric = FALSE,
+  infinite_bounds = FALSE,
+  min_distinct_values = 3
+)
 }
 \arguments{
 \item{df}{input data frame.}

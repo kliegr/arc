@@ -4,7 +4,16 @@
 \alias{predict.CBARuleModel}
 \title{Apply Rule Model}
 \usage{
-\method{predict}{CBARuleModel}(object, data, discretize = TRUE, ...)
+\method{predict}{CBARuleModel}(
+  object,
+  data,
+  discretize = TRUE,
+  outputFiringRuleIDs = FALSE,
+  outputConfidenceScores = FALSE,
+  confScoreType = "ordered",
+  positiveClass = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{a \link{CBARuleModel} class instance}
@@ -13,6 +22,16 @@
 
 \item{discretize}{boolean indicating whether the passed data should be discretized
 using information in the passed @cutp slot of the ruleModel argument.}
+
+\item{outputFiringRuleIDs}{if set to TRUE, instead of predictions, the function will return one-based IDs of  rules used to classify each instance (one rule per instance).}
+
+\item{outputConfidenceScores}{if set to TRUE, instead of predictions, the function will return confidences of the firing rule}
+
+\item{confScoreType}{applicable only if `outputConfidenceScores=TRUE`, possible values `ordered` for confidence computed only for training instances reaching this rule, or `global` for standard rule confidence computed from the complete training data}
+
+\item{positiveClass}{This setting is only used if `outputConfidenceScores=TRUE`. It should be used only for binary problems. In this
+case, the confidence values are recalculated so that these are not confidence values of the predicted class (default behaviour of `outputConfidenceScores=TRUE`)
+but rather confidence values associated with the class designated as positive}
 
 \item{...}{other arguments (currently not used)}
 }
