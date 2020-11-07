@@ -42,6 +42,7 @@ A vector with predictions.
 Method that matches rule model against test data.
 }
 \examples{
+  set.seed(101)
   allData <- datasets::iris[sample(nrow(datasets::iris)),]
   trainFold <- allData[1:100,]
   testFold <- allData[101:nrow(allData),]
@@ -52,6 +53,14 @@ Method that matches rule model against test data.
   prediction <- predict(rm, testFold)
   acc <- CBARuleModelAccuracy(prediction, testFold[[classAtt]])
   message(acc)
+  # get rules responsible for each prediction
+  firingRuleIDs <- predict(rm, testFold, outputFiringRuleIDs=TRUE)
+  # show rule responsible for prediction of test instance no. 28
+  inspect(rm@rules[firingRuleIDs[28]])
+  # get prediction confidence (three different versions)
+  rm@rules[firingRuleIDs[28]]@quality$confidence
+  rm@rules[firingRuleIDs[28]]@quality$orderedConf
+  rm@rules[firingRuleIDs[28]]@quality$cumulativeConf
 }
 \seealso{
 \link{cbaIris}

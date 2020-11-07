@@ -40,7 +40,7 @@ in which they are assumed to be applied in classification. Only the first applic
 classify the instance. As a result, in addition to rule confidence -- which is computed over the
 whole training dataset -- it makes sense to define order-sensitive confidence, which is computed
 only from instances reaching the given rule as \eqn{a/(a+b)}, where \eqn{a} is the number of instances
-matching both the antecedent and consequent (available in slo `orderedSupp`) and \eqn{b} is the number of instances matching the antecedent, but
+matching both the antecedent and consequent (available in slot `orderedSupp`) and \eqn{b} is the number of instances matching the antecedent, but
 not matching the consequent of the given rule.  The cumulative confidence is an experimental measure,
 which is computed as the accuracy of the rule list comprising the given rule and all higher priority
 rules (rules with lower index) with uncovered instances excluded from the computation.

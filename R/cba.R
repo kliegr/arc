@@ -27,7 +27,7 @@ CBARuleModel <- setClass("CBARuleModel",
 
 #' @title Returns vector with confidences for the positive class (useful for ROC or AUC computation)
 #' @description Methods for computing ROC curves require a vector of confidences
-#' of the positive class, while in qCBA, the confidence returned by predict.qCBARuleModel with
+#' of the positive class, while in CBA, the confidence returned by predict with
 #' outputProbabilies = TRUE returns confidence for the predicted class.
 #' This method converts the values to confidences for the positive class
 #' @export
@@ -42,6 +42,10 @@ CBARuleModel <- setClass("CBARuleModel",
 #' confidences = c(0.9,0.6)
 #' baseClass="setosa"
 #' getConfVectorForROC(confidences,predictedClass,baseClass)
+#'
+#' # Further examples showing how ROC curve and AUC values can be computed
+#' # using this function are available at project's GitHub homepage.
+
 
 getConfVectorForROC <- function(confidences, predictedClass, positiveClass)
 {
@@ -70,6 +74,7 @@ getConfVectorForROC <- function(confidences, predictedClass, positiveClass)
 #' @export
 #' @method predict CBARuleModel
 #' @examples
+#'   set.seed(101)
 #'   allData <- datasets::iris[sample(nrow(datasets::iris)),]
 #'   trainFold <- allData[1:100,]
 #'   testFold <- allData[101:nrow(allData),]
@@ -80,6 +85,14 @@ getConfVectorForROC <- function(confidences, predictedClass, positiveClass)
 #'   prediction <- predict(rm, testFold)
 #'   acc <- CBARuleModelAccuracy(prediction, testFold[[classAtt]])
 #'   message(acc)
+#'   # get rules responsible for each prediction
+#'   firingRuleIDs <- predict(rm, testFold, outputFiringRuleIDs=TRUE)
+#'   # show rule responsible for prediction of test instance no. 28
+#'   inspect(rm@rules[firingRuleIDs[28]])
+#'   # get prediction confidence (three different versions)
+#'   rm@rules[firingRuleIDs[28]]@quality$confidence
+#'   rm@rules[firingRuleIDs[28]]@quality$orderedConf
+#'   rm@rules[firingRuleIDs[28]]@quality$cumulativeConf
 #' @seealso \link{cbaIris}
 #'
 predict.CBARuleModel <- function(object, data, discretize=TRUE,outputFiringRuleIDs=FALSE, outputConfidenceScores=FALSE,confScoreType="ordered", positiveClass=NULL,...) {

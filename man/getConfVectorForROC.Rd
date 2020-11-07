@@ -18,7 +18,7 @@ Vector of confidence values
 }
 \description{
 Methods for computing ROC curves require a vector of confidences
-of the positive class, while in qCBA, the confidence returned by predict.qCBARuleModel with
+of the positive class, while in CBA, the confidence returned by predict with
 outputProbabilies = TRUE returns confidence for the predicted class.
 This method converts the values to confidences for the positive class
 }
@@ -27,4 +27,7 @@ predictedClass = c("setosa","virginica")
 confidences = c(0.9,0.6)
 baseClass="setosa"
 getConfVectorForROC(confidences,predictedClass,baseClass)
+
+# Further examples showing how ROC curve and AUC values can be computed
+# using this function are available at project's GitHub homepage.
 }
