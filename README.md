@@ -1,6 +1,5 @@
 #  Association Rule Classification (arc)
 
-[![Travis-CI Build Status](https://travis-ci.org/kliegr/arc.svg?branch=master)](https://travis-ci.org/kliegr/arc)
 [![](http://cranlogs.r-pkg.org/badges/arc)](http://cran.rstudio.com/web/packages/qCBA/index.html)
 [![](https://www.r-pkg.org/badges/version/arc)](https://cran.r-project.org/web/packages/arc/index.html)
 
@@ -113,11 +112,21 @@ Now consider this instance:
 ``` R
 testFold[28,]
 ```
+
+```
+   Sepal.Length Sepal.Width Petal.Length Petal.Width    Species
+51            7         3.2          4.7         1.4 versicolor
+``` 
 The prediction is
 ``` R
 prediction[28]
 ```
+```
+[1] versicolor
+Levels: setosa versicolor virginica
+```
 But why, and what is the confidence?
+
 ### Get rule that made the prediction
 Which rule classified instance #28 in test?
 ``` R
@@ -135,21 +144,18 @@ lhs                                                  rhs                  suppor
 ### Get prediction confidence score 
 What is the confidence score for prediction of the instance #28 in test?
 Most commonly used estimate is
-* **rule confidence**, which is  computed as  \eqn{a/(a+b)}, where \eqn{a} is the number of instances
- matching both the antecedent and consequent (available in slot `support`) and \eqn{b} is the number of instances matching the antecedent, but not matching the consequent of the given rule.
+* **rule confidence**, which is  computed as  $a/(a+b)$, where $a$ is the number of instances
+ matching both the antecedent and consequent (available in slot `support`) and $b$ is the number of instances matching the antecedent, but not matching the consequent of the given rule.
 
-The arc package provides two alternative measures
+The arc package provides two alternative measures:
 
 * **order-sensitive confidence** is computed only from instances reaching the given rule. Note that CBA generates ordered rule lists.
 * **cumulative confidence** is an experimental measure computed as the accuracy of the rule list comprising the given rule and all higher priority rules (rules with lower index) with uncovered instances excluded from the computation.
 
 ``` R
-rm@rules[firingRuleIDs[28]]@quality$confidence
-rm@rules[firingRuleIDs[28]]@quality$orderedConf
-rm@rules[firingRuleIDs[28]]@quality$cumulativeConf
-```
-For instance #28, the results are:
-``` R
+> rm@rules[firingRuleIDs[28]]@quality$confidence
+> rm@rules[firingRuleIDs[28]]@quality$orderedConf
+> rm@rules[firingRuleIDs[28]]@quality$cumulativeConf
 0.972973
 0.833333
 0.9891304
@@ -190,6 +196,13 @@ lines(x=c(0, 1), y=c(0, 1), col="black", lwd=1)
 auc <- ROCR::performance(pred_cba, "auc")
 auc <- unlist(auc@y.values)
 auc
+```
+
+![Generated ROC curve](man/roc.png)
+
+```
+> auc
+[1] 0.8851852
 ```
 
 ### Performance optimization
