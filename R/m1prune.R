@@ -51,7 +51,7 @@ library(R.utils)
 #'  # Final rule list size:  6
 
 
-prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_window=50000,greedy_pruning=FALSE, input_list_sorted_by_length = TRUE,debug=FALSE){
+prune <- function(rules, txns, classitems,default_rule_pruning=TRUE, rule_window=50000,greedy_pruning=FALSE, input_list_sorted_by_length = TRUE,debug=FALSE){
   if (!default_rule_pruning & greedy_pruning)
   {
     stop("When greedy_pruning is enabled, default_rule_pruning must be enabled too")
@@ -64,6 +64,18 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
   tryCatch(
     {
       rules@quality$lhs_length <- colSums(rules@lhs@data)
+      rulesWithEmptyAntecedent <- which(rules@quality$lhs_length==0)
+      if (length(rulesWithEmptyAntecedent) > 0)
+      {
+        rules <- rules[-rulesWithEmptyAntecedent]
+        if (debug) message("Rule(s) with empty antecedent removed")
+      }
+      if (length(rules) == 0)
+      {
+        warning("There are no rules with non-empty antecedent.")
+        warning("Cannot prune empty rule list")
+        return(rules)
+      }
     }, error= function(err)
     {
       warning(err)
@@ -119,7 +131,7 @@ prune <- function  (rules, txns, classitems,default_rule_pruning=TRUE, rule_wind
   ordered_conf <- rep(NA, rule_count)
   ordered_supp <- rep(NA, rule_count)
 
-  for(r in 1:rule_count)
+  for(r in seq_len(rule_count))
   {
     # the purpose of using rule windows is following:
     # bulk operations on multiple rules at a time may be cheaper than many iterative multiplications of single rule vectors with all transactions

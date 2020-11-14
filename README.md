@@ -198,7 +198,7 @@ auc <- unlist(auc@y.values)
 auc
 ```
 
-![Generated ROC curve](man/roc.png)
+![Generated ROC curve](man/figures/roc.png)
 
 ```
 > auc
