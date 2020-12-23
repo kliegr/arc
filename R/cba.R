@@ -1,8 +1,6 @@
 #' @importFrom utils read.csv write.csv
 library(arules)
 
-
-
 #' CBARuleModel
 #'
 #' @description  This class represents a rule-based classifier.
@@ -154,11 +152,11 @@ predict.CBARuleModel <- function(object, data, discretize=TRUE,outputFiringRuleI
       if (confScoreType =="ordered")
       {
         #this position is set in method prune
-        confPositionInVector<-which(colnames(rules@quality)=="orderedConf")
+        confPositionInVector<-which(colnames(object@rules@quality)=="orderedConf")
       }
       else
       {
-        confPositionInVector<-which(colnames(rules@quality)=="confidence")
+        confPositionInVector<-which(colnames(object@rules@quality)=="confidence")
         if (confScoreType !="global")
         {
           message("Unrecognized confScoreType, using value global")
