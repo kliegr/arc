@@ -1,3 +1,15 @@
+arc v1.3.2 (Release date: 2020-12-23)
+==============
+Changes
+
+* Bug fix - in some situations, vector positiob for confidence score comp. was shifted
+
+arc v1.3.1 (Release date: 2020-11-14)
+==============
+Changes
+
+* Bug fix - in some situations, two default rules were included on output
+
 arc v1.3.1 (Release date: 2020-11-07)
 ==============
 Changes

@@ -154,11 +154,11 @@ predict.CBARuleModel <- function(object, data, discretize=TRUE,outputFiringRuleI
       if (confScoreType =="ordered")
       {
         #this position is set in method prune
-        confPositionInVector<-7
+        confPositionInVector<-which(colnames(rules@quality)=="orderedConf")
       }
       else
       {
-        confPositionInVector<-3
+        confPositionInVector<-which(colnames(rules@quality)=="confidence")
         if (confScoreType !="global")
         {
           message("Unrecognized confScoreType, using value global")

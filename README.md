@@ -191,7 +191,7 @@ target_cba<-droplevels(factor(testFold[[classAtt]],ordered = TRUE,levels=levels(
 
 pred_cba <- ROCR::prediction(confidence_scores, target_cba)
 roc_cba <- ROCR::performance(pred_cba, "tpr", "fpr")
-plot(roc_cba, lwd=2, colorize=TRUE)
+ROCR::plot(roc_cba, lwd=2, colorize=TRUE)
 lines(x=c(0, 1), y=c(0, 1), col="black", lwd=1)
 auc <- ROCR::performance(pred_cba, "auc")
 auc <- unlist(auc@y.values)
