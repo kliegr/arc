@@ -1,10 +1,18 @@
-arc v1.3.2 (Release date: 2020-12-23)
+arc v1.3.4 (Release date: 2023-08-16)
 ==============
 Changes
 
-* Bug fix - in some situations, vector positiob for confidence score comp. was shifted
+* CRAN Maintenance release
+* Updates in README examples
+* Added reference to the R Journal article covering arc (Hahsler et al, 2019)
 
-arc v1.3.1 (Release date: 2020-11-14)
+arc v1.3.3 (Release date: 2020-12-23)
+==============
+Changes
+
+* Bug fix - in some situations, vector position for confidence score comp. was shifted
+
+arc v1.3.2 (Release date: 2020-11-14)
 ==============
 Changes
 
@@ -16,7 +24,7 @@ Changes
 
 * Small improvements in documentation
 
-arc v1.3 (Release date: 2020-11-06)
+arc v1.3 (Release date: 2020-09-03)
 ==============
 Changes
 

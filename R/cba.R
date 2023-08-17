@@ -245,7 +245,7 @@ cbaCSV <- function(path, outpath = NULL, classAtt = NULL, idcolumn = NULL, rulel
   train <- utils::read.csv(path, header  =TRUE, check.names = FALSE)
   if (!is.null(idcolumn))
   {
-    train <- subset( train, select = -c (idcolumn) )
+    train <- subset( train, select = -c(idcolumn) )
   }
 
   if (is.null(classAtt))

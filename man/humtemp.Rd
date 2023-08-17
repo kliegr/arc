@@ -4,7 +4,9 @@
 \name{humtemp}
 \alias{humtemp}
 \title{Comfort level based on temperature and humidity of the environment}
-\format{A data frame with 34 rows and 3 variables}
+\format{
+A data frame with 34 rows and 3 variables
+}
 \usage{
 data(humtemp)
 }
