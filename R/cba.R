@@ -165,7 +165,6 @@ predict.CBARuleModel <- function(object, data, discretize=TRUE,outputFiringRuleI
     }
     # The method uses confidence of the firing rule (as was computed on the entire training data)
     # as the confidence estimate.
-    # This is not the best approximation of confidence, especially for rules lower in the list
     confidences <- vector()
     for (ruleId in firingRuleIDs)
     {
@@ -182,15 +181,13 @@ predict.CBARuleModel <- function(object, data, discretize=TRUE,outputFiringRuleI
   {
     return(prediction)
   }
-  # end.time <- Sys.time()
-  # message (paste("Prediction (CBA model application) took:", round(end.time - start.time, 2), " seconds"))
 }
 
 #' Prediction Accuracy
-#' @description Compares predictions with groundtruth and outputs accuracy.
+#' @description Compares predictions with true labels and outputs accuracy.
 #'
-#' @param prediction a vector with predictions
-#' @param groundtruth a vector with groundtruth
+#' @param prediction vector with predictions
+#' @param groundtruth vector with true labels
 #'
 #' @return Accuracy
 #' @export
@@ -333,12 +330,12 @@ cbaIrisNumeric <- function()
 #'
 #' @examples
 #'  # Example using automatic threshold detection
-#'   cba(datasets::iris, "Species", rulelearning_options = list(target_rule_count = 50000))
+#'  cba(datasets::iris, "Species", rulelearning_options = list(target_rule_count = 50000))
 #'  # Example using manually set confidence and support thresholds
-#'   rm <- cba(datasets::iris, "Species", rulelearning_options = list(minsupp=0.01,
+#'  rm <- cba(datasets::iris, "Species", rulelearning_options = list(minsupp=0.01,
 #'    minconf=0.5, minlen=1, maxlen=5, maxtime=1000, target_rule_count=50000, trim=TRUE,
 #'    find_conf_supp_thresholds=FALSE))
-#'   inspect(rm@rules)
+#'  inspect(rm@rules)
 
 cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL){
 
@@ -430,11 +427,11 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
 #'
 #'
 #'   rmCBA <- cba_manual(data_raw,  rules, txns_discr, appearance$rhs,
-#'    classAtt, cutp= list(), pruning_options=NULL)
+#'   classAtt, cutp= list(), pruning_options=NULL)
 #'   inspect (rmCBA@rules)
-#'   # prediction <- predict(rmCBA,data_discr,discretize=FALSE)
-#'   # acc <- CBARuleModelAccuracy(prediction, data_discr[[classAtt]])
-#'   # print(paste("Accuracy:",acc))
+#'   prediction <- predict(rmCBA,data_discr,discretize=FALSE)
+#'   acc <- CBARuleModelAccuracy(prediction, data_discr[[classAtt]])
+#'   print(paste("Accuracy:",acc))
 
 cba_manual <- function(train_raw,  rules, txns, rhs, classAtt, cutp, pruning_options=list(input_list_sorted_by_length=FALSE)){
   start.time <- Sys.time()

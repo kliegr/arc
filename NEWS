@@ -1,10 +1,12 @@
-arc v1.3.4 (Release date: 2023-08-16)
+arc v1.4 (Release date: 2023-08-17)
 ==============
 Changes
 
 * CRAN Maintenance release
+* Incorporates changes in coercions required by Matrix package (since 1.5-0)
 * Updates in README examples
 * Added reference to the R Journal article covering arc (Hahsler et al, 2019)
+* License changed to GPL-3 from AGPL-3
 
 arc v1.3.3 (Release date: 2020-12-23)
 ==============

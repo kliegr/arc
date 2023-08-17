@@ -52,6 +52,7 @@ library(R.utils)
 
 
 prune <- function(rules, txns, classitems,default_rule_pruning=TRUE, rule_window=50000,greedy_pruning=FALSE, input_list_sorted_by_length = TRUE,debug=FALSE){
+
   if (!default_rule_pruning & greedy_pruning)
   {
     stop("When greedy_pruning is enabled, default_rule_pruning must be enabled too")
@@ -159,14 +160,14 @@ prune <- function(rules, txns, classitems,default_rule_pruning=TRUE, rule_window
         }
       }
       # the result of matrix mutliplication is a matrix for which element M[r,t] corresponds to how many items in rule r are matched by an item in transaction t
-      # the conversion from ngCMatrix to dgCMatrix since the definition of matrix multiplication operations on ngCMatrix would mean different result than outlined above
-      RT.lhs <- t(as(rules@lhs@data[,ws:we,drop = FALSE],"dgCMatrix")) %*% as(txns@data,"dgCMatrix")
+      # the conversion from nMatrix to dMatrix since the definition of matrix multiplication operations on nMatrix would mean different result than outlined above
+      RT.lhs <- t(as(rules@lhs@data[,ws:we,drop = FALSE],"dMatrix")) %*% as(txns@data,"dMatrix")
 
       # this operation would also work without the subsetting by classitemspositions
       # now do the same thing for rhs
-      # Performance tip: ngCMatrix can be cast to dgCMatrix just once, outside the loop for the entire matrix
+      # Performance tip: nMatrix can be cast to dMatrix just once, outside the loop for the entire matrix
       RT.rhs <- t(as(rules@rhs@data[classitemspositions,ws:we,drop = FALSE],
-        "dgCMatrix")) %*% as(txns@data[classitemspositions,,drop = FALSE],"dgCMatrix")
+        "dMatrix")) %*% as(txns@data[classitemspositions,,drop = FALSE],"dMatrix")
 
       # thus the rule r's lhs matches the transaction t iff M[r,t] == number of items in t is the same as number of items in lhs of  rule r
       RT.matches_lhs <- (rules[ws:we,drop = FALSE]@quality$lhs_length==RT.lhs)
@@ -311,11 +312,11 @@ prune <- function(rules, txns, classitems,default_rule_pruning=TRUE, rule_window
 
   # add default rule to the end
   ## the lhs of the default rule has no items (all item positions to 0 in the item matrix)
-  rules@lhs@data <- cbind(rules@lhs@data, as(matrix(0, distinct_items,1),"ngCMatrix"))
+  rules@lhs@data <- cbind(rules@lhs@data, as(matrix(0, distinct_items,1),"nMatrix"))
 
   # now prepare the rhs of the default rule
   # first prepare empty vector
-  default_rhs <- as(matrix(0, distinct_items,1),"ngCMatrix")
+  default_rhs <- as(matrix(0, distinct_items,1),"nMatrix")
   # the class associated with the default rule is the class that has been precomputed as part of evaluation of the "last rule"
   default_rhs[classitemspositions[default_classes[last_rule_pos]]] <- TRUE
   # finally append the default rule rhs to the rules rhs  matrix

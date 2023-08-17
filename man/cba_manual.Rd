@@ -60,9 +60,9 @@ Learns a CBA rule set from supplied rules
 
 
   rmCBA <- cba_manual(data_raw,  rules, txns_discr, appearance$rhs,
-   classAtt, cutp= list(), pruning_options=NULL)
+  classAtt, cutp= list(), pruning_options=NULL)
   inspect (rmCBA@rules)
-  # prediction <- predict(rmCBA,data_discr,discretize=FALSE)
-  # acc <- CBARuleModelAccuracy(prediction, data_discr[[classAtt]])
-  # print(paste("Accuracy:",acc))
+  prediction <- predict(rmCBA,data_discr,discretize=FALSE)
+  acc <- CBARuleModelAccuracy(prediction, data_discr[[classAtt]])
+  print(paste("Accuracy:",acc))
 }

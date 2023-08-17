@@ -6,11 +6,11 @@
 
 This package for R implements the Classification based on Associations algorithm (CBA):
 
- ```Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Association Rule Mining. Proceedings KDD-98, New York, 27-31 August. AAAI. pp 80-86.```
+ ```Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Association Rule Mining. Proceedings KDD-98, New York, 27-31 August. AAAI Press. pp 80-86.```
 
 The [arules](https://github.com/mhahsler/arules/) package is used for the rule generation step.
 
-The package is also availabe in **R CRAN repository** as [Association Rule Classification (arc)](https://cran.r-project.org/web/packages/arc/index.html) package.
+The package is also available in **R CRAN repository** as [Association Rule Classification (arc)](https://cran.r-project.org/web/packages/arc/index.html) package.
 
 ## Citing this package 
 This package for R is described in an [R Journal article](https://journal.r-project.org/archive/2019/RJ-2019-048/index.html)
@@ -88,7 +88,7 @@ data("Adult")
 rules <- topRules(Adult, target_rule_count = 100, init_support = 0.5, init_conf = 0.9, minlen = 1, init_maxlen = 10)
 summary(rules)
 ```
-This will return exactly 100 rules. These can then be passed for pruning with CBA:
+This will return exactly 100 rules. These can then be passed to CBA for pruning:
 ```R
 pruned <- prune(rules, Adult, classitems, greedy_pruning=TRUE)
 ```
@@ -186,5 +186,5 @@ inspect(rules)
 ```
 #### Rule pruning
 * Experiment with the value of the `rule_window` parameter. This has no effect on the quality of the classifier. 
-* Set `greedy_pruning` to TRUE. This will have generally slightly adverse impact on the quality of the classifier, but it will decrease the size of the rule set and reduce the time required for pruning. Greedy pruning is not part of the CBA algorithm as published by Liu et al. 
+* Set `greedy_pruning` to TRUE. This will have generally slightly adverse impact on the quality of the classifier, but it will decrease the size of the rule set and reduce the time required for pruning. Greedy pruning is not part of the CBA algorithm as published by Liu et al (1998). 
 

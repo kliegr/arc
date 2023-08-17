@@ -7,13 +7,13 @@
 CBARuleModelAccuracy(prediction, groundtruth)
 }
 \arguments{
-\item{prediction}{a vector with predictions}
+\item{prediction}{vector with predictions}
 
-\item{groundtruth}{a vector with groundtruth}
+\item{groundtruth}{vector with true labels}
 }
 \value{
 Accuracy
 }
 \description{
-Compares predictions with groundtruth and outputs accuracy.
+Compares predictions with true labels and outputs accuracy.
 }
