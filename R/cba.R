@@ -22,6 +22,17 @@ CBARuleModel <- setClass("CBARuleModel",
   )
 )
 
+setMethod("show", "CBARuleModel", function(object) {
+  cat("CBARuleModel object\n")
+  cat("Number of rules:", length(object@rules), "\n")
+  cat("Number of conditions:", sum(object@rules@lhs@data), "\n")
+  cat("Class attribute:", object@classAtt, "\n")
+  cat("Attribute types:\n")
+  print(object@attTypes)
+  cat("Rules:\n")
+  print(object@rules)
+})
+
 
 #' @title Returns vector with confidences for the positive class (useful for ROC or AUC computation)
 #' @description Methods for computing ROC curves require a vector of confidences
