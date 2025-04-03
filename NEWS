@@ -1,3 +1,10 @@
+arc v1.4.2 (Release date: 2025-03-27)
+==============
+Changes
+
+* Added rda version of the humtemp dataset
+* Several function arguments were renamed to improve code readability
+
 arc v1.4.1 (Release date: 2023-09-08)
 ==============
 Changes

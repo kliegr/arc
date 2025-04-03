@@ -4,10 +4,10 @@
 \alias{cba}
 \title{CBA Classifier}
 \usage{
-cba(train, classAtt, rulelearning_options = NULL, pruning_options = NULL)
+cba(datadf, classAtt, rulelearning_options = NULL, pruning_options = NULL)
 }
 \arguments{
-\item{train}{a data frame with data.}
+\item{datadf}{a data frame with data.}
 
 \item{classAtt}{the name of the class attribute.}
 

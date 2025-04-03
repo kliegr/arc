@@ -7,7 +7,7 @@ library(discretization)
 #' This R file contains fragments of code from the GPL-licensed R discretization package by HyunJi Kim.
 #' @references Fayyad, U. M. and Irani, K. B. (1993). Multi-interval discretization of continuous-valued attributes for classification learning, Artificial intelligence 13, 1022–1027
 #' @param df a data frame with data.
-#' @param classatt name the class attribute in df
+#' @param classAtt name the class attribute in df
 #' @param min_distinct_values the minimum number of unique values a column needs to have to be subject to supervised discretization.
 #' @param unsupervised_bins  number of target bins for  discretizing the class attribute. Ignored when the class attribute is not numeric or when \code{discretize_class} is set to FALSE.
 #' @param discretize_class logical value indicating whether the class attribute should be discretized. Ignored when the class attribute is not numeric.
@@ -18,14 +18,14 @@ library(discretization)
 #'   discrNumeric(datasets::iris, "Species")
 #'
 #' @export
-discrNumeric <- function(df, classatt, min_distinct_values = 3, unsupervised_bins = 3, discretize_class = FALSE)
+discrNumeric <- function(df, classAtt, min_distinct_values = 3, unsupervised_bins = 3, discretize_class = FALSE)
 {
-  cl_index <- which(colnames(df) ==classatt)
+  cl_index <- which(colnames(df) ==classAtt)
   if(!is.factor(df[[cl_index]]))
   {
     if (discretize_class)
     {
-      class_discr <- discretizeUnsupervised(df[[classatt]], labels= TRUE, infinite_bounds = TRUE, categories = unsupervised_bins)
+      class_discr <- discretizeUnsupervised(df[[classAtt]], labels= TRUE, infinite_bounds = TRUE, categories = unsupervised_bins)
       df[[cl_index]] <- applyCut(df[[cl_index]], class_discr$cutp, infinite_bounds=TRUE, labels=TRUE)
     }
     else

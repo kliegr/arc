@@ -5,7 +5,7 @@
 \title{CBA Classifier from provided rules}
 \usage{
 cba_manual(
-  train_raw,
+  datadf_raw,
   rules,
   txns,
   rhs,
@@ -15,7 +15,7 @@ cba_manual(
 )
 }
 \arguments{
-\item{train_raw}{a data frame with raw data (numeric attributes are not discretized).}
+\item{datadf_raw}{a data frame with raw data (numeric attributes are not discretized).}
 
 \item{rules}{Rules class instance  output by the apriori package}
 

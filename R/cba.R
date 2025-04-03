@@ -323,7 +323,7 @@ cbaIrisNumeric <- function()
 #' @title CBA Classifier
 #' @description Learns a CBA rule set from supplied dataframe.
 #' @export
-#' @param train a data frame with data.
+#' @param datadf a data frame with data.
 #' @param classAtt the name of the class attribute.
 #' @param rulelearning_options custom options for the rule learning algorithm overriding the default values.
 #' If not specified, the the   \link{topRules} function is called and defaults specified there are used\cr
@@ -348,13 +348,13 @@ cbaIrisNumeric <- function()
 #'    find_conf_supp_thresholds=FALSE))
 #'  inspect(rm@rules)
 
-cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL){
+cba <- function(datadf, classAtt, rulelearning_options=NULL, pruning_options=NULL){
 
-  discr <- discrNumeric(train, classAtt)
+  discr <- discrNumeric(datadf, classAtt)
 
   txns <- as(discr$Disc.data, "transactions")
 
-  appearance <- getAppearance(train, classAtt)
+  appearance <- getAppearance(datadf, classAtt)
 
   start.time <- Sys.time()
   if (is.null(rulelearning_options) || is.null(rulelearning_options$find_conf_supp_thresholds) || rulelearning_options$find_conf_supp_thresholds==TRUE)
@@ -393,7 +393,7 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
   rm@rules <- rules
   rm@cutp <- discr$cutp
   rm@classAtt <- classAtt
-  rm@attTypes <- sapply(train, class)
+  rm@attTypes <- sapply(datadf, class)
   return(rm)
 }
 
@@ -403,7 +403,7 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
 #' @title CBA Classifier from provided rules
 #' @description Learns a CBA rule set from supplied rules
 #' @export
-#' @param train_raw a data frame with raw data (numeric attributes are not discretized).
+#' @param datadf_raw a data frame with raw data (numeric attributes are not discretized).
 #' @param rules Rules class instance  output by the apriori package
 #' @param txns Transactions class instance  passed to  the arules method invocation. Transactions are created over discretized data frame  - numeric values are replaced  with intervals such as "(13;45]".
 #' @param rhs character vectors giving the labels of the items which can appear in the RHS
@@ -444,7 +444,7 @@ cba <- function(train, classAtt, rulelearning_options=NULL, pruning_options=NULL
 #'   acc <- CBARuleModelAccuracy(prediction, data_discr[[classAtt]])
 #'   print(paste("Accuracy:",acc))
 
-cba_manual <- function(train_raw,  rules, txns, rhs, classAtt, cutp, pruning_options=list(input_list_sorted_by_length=FALSE)){
+cba_manual <- function(datadf_raw,  rules, txns, rhs, classAtt, cutp, pruning_options=list(input_list_sorted_by_length=FALSE)){
   start.time <- Sys.time()
   rules <- do.call("prune", appendToList(list(rules = rules,txns = txns,classitems = rhs), pruning_options))
 
@@ -458,7 +458,7 @@ cba_manual <- function(train_raw,  rules, txns, rhs, classAtt, cutp, pruning_opt
   rm@cutp <- cutp
   rm@classAtt <- classAtt
 
-  rm@attTypes <- sapply(train_raw, class)
+  rm@attTypes <- sapply(datadf_raw, class)
   return(rm)
 }
 

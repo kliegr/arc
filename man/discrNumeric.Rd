@@ -6,7 +6,7 @@
 \usage{
 discrNumeric(
   df,
-  classatt,
+  classAtt,
   min_distinct_values = 3,
   unsupervised_bins = 3,
   discretize_class = FALSE
@@ -15,7 +15,7 @@ discrNumeric(
 \arguments{
 \item{df}{a data frame with data.}
 
-\item{classatt}{name the class attribute in df}
+\item{classAtt}{name the class attribute in df}
 
 \item{min_distinct_values}{the minimum number of unique values a column needs to have to be subject to supervised discretization.}
 

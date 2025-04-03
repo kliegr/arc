@@ -1,7 +1,7 @@
 Package: arc
 Title: Association Rule Classification
 Version: 1.4.1
-Date: 2024-09-08
+Date: 2025-04-03
 Author: Tomas Kliegr [aut, cre]
 Maintainer: Tomas Kliegr <kliegr@gmail.com>
 Description: Implements the Classification-based on
@@ -27,7 +27,8 @@ BugReports: https://github.com/kliegr/arc/issues
 Imports:
     Matrix (>= 0.5-0),
     methods,
-    datasets
+    datasets,
+    utils
 Suggests: 
     qCBA
 RoxygenNote: 7.3.2
