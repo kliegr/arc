@@ -1,6 +1,6 @@
 Package: arc
 Title: Association Rule Classification
-Version: 1.4.1
+Version: 1.4.2
 Date: 2025-04-03
 Author: Tomas Kliegr [aut, cre]
 Maintainer: Tomas Kliegr <kliegr@gmail.com>
@@ -15,7 +15,7 @@ Description: Implements the Classification-based on
     'qCBA' package is suggested.
 Copyright: The mdlp2.R script reuses parts of the code from the R `discretization` package by HyunJi Kim (GPL license).
 Depends:
-    R (>= 3.2.3),
+    R (>= 3.5.0),
     arules (>= 1.7-4),
     R.utils,
     discretization

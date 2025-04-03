@@ -16,7 +16,7 @@ library(R.utils)
 #' @param debug output debug messages.
 #' @param greedy_pruning setting to TRUE activates early stopping condition: pruning will be stopped on first rule on which total error increases.
 #'
-#' @return Returns an object of class \link{rules}. Note that `rules@quality` slot has been extended
+#' @return Returns an object of class \link[arules]{rules}. Note that `rules@quality` slot has been extended
 #' with additional measures, specifically `orderedConf`, `orderedSupp`, and `cumulativeConf`. The rules are output in the order
 #' in which they are assumed to be applied in classification. Only the first applicable rule is used to
 #' classify the instance. As a result, in addition to rule confidence -- which is computed over the

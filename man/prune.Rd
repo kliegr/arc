@@ -34,7 +34,7 @@ If set to FALSE, default pruning is not performed i.e. all rules surviving data 
 \item{debug}{output debug messages.}
 }
 \value{
-Returns an object of class \link{rules}. Note that `rules@quality` slot has been extended
+Returns an object of class \link[arules]{rules}. Note that `rules@quality` slot has been extended
 with additional measures, specifically `orderedConf`, `orderedSupp`, and `cumulativeConf`. The rules are output in the order
 in which they are assumed to be applied in classification. Only the first applicable rule is used to
 classify the instance. As a result, in addition to rule confidence -- which is computed over the
