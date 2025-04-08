@@ -2,7 +2,10 @@ Package: arc
 Title: Association Rule Classification
 Version: 1.4.2
 Date: 2025-04-03
-Author: Tomas Kliegr [aut, cre]
+Authors@R: person(given = "Tomas",
+                    family = "Kliegr",
+                    role = c("aut", "cre"),
+                    email = "kliegr@gmail.com")
 Maintainer: Tomas Kliegr <kliegr@gmail.com>
 Description: Implements the Classification-based on
     Association Rules (CBA) algorithm for association rule classification.
